@@ -1,122 +1,378 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState, useEffect } from "react";
+import axios from "axios";
+import YouTubePlayer from "./components/YouTubePlayer";
+import "./App.css";
+
+import Sidebar from "./components/Sidebar";
+import Navbar from "./components/Navbar";
+import SearchBar from "./components/SearchBar";
+import SongList from "./components/SongList";
+import MusicPlayer from "./components/MusicPlayer";
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [query, setQuery] = useState("");
+
+  const [songs, setSongs] = useState([]);
+
+  const [currentSong, setCurrentSong] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
+  const [recentSongs, setRecentSongs] = useState([]);
+
+  const [likedSongs, setLikedSongs] = useState([]);
+
+  const [volume, setVolume] = useState(1);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const [player, setPlayer] = useState(null);  
+
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const [duration, setDuration] = useState(0);
+
+  const [currentIndex, setCurrentIndex] = useState(-1);
+
+  useEffect(() => {
+
+    const recent = JSON.parse(localStorage.getItem("recentSongs"));
+
+    if (recent) {
+
+      setRecentSongs(recent);
+
+    }
+
+    const liked = JSON.parse(localStorage.getItem("likedSongs"));
+
+    if (liked) {
+
+      setLikedSongs(liked);
+
+    }
+
+  }, []);
+
+  const searchSongs = async () => {
+
+    if (query.trim() === "") return;
+
+    try {
+
+      setLoading(true);
+
+      const response = await axios.get(
+        "http://10.236.118.138:8080/api/youtube/search",
+        {
+          params: {
+            query: query,
+          },
+        }
+      );
+
+      if (Array.isArray(response.data)) {
+
+        setSongs(response.data);
+
+      } else {
+
+        setSongs([]);
+
+      }
+
+    } catch (err) {
+
+      console.log(err);
+
+      setSongs([]);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  const playSong = (song, index = null) => {
+
+  const songIndex =
+    index !== null
+      ? index
+      : songs.findIndex(
+          (s) => s.videoId === song.videoId
+        );
+
+  setCurrentIndex(songIndex);
+
+  setCurrentTime(0);
+  setDuration(0);
+
+  setCurrentSong(song);
+  setIsPlaying(true);
+
+  const updatedRecent = [
+    song,
+    ...recentSongs.filter(
+      (s) => s.videoId !== song.videoId
+    ),
+  ];
+
+  setRecentSongs(updatedRecent);
+
+  localStorage.setItem(
+    "recentSongs",
+    JSON.stringify(updatedRecent)
+  );
+};
+
+  const toggleLike = (song) => {
+
+    let updated = [];
+
+    const exists = likedSongs.find(
+      (s) => s.videoId === song.videoId
+    );
+
+    if (exists) {
+
+      updated = likedSongs.filter(
+        (s) => s.videoId !== song.videoId
+      );
+
+    } else {
+
+      updated = [...likedSongs, song];
+
+    }
+
+    setLikedSongs(updated);
+
+    localStorage.setItem(
+      "likedSongs",
+      JSON.stringify(updated)
+    );
+
+  };
+
+  const nextSong = () => {
+
+  if (currentIndex < songs.length - 1) {
+
+    playSong(
+      songs[currentIndex + 1],
+      currentIndex + 1
+    );
+
+  }
+
+};
+
+  const handleSongEnd = () => {
+
+  if (currentIndex < songs.length - 1) {
+
+    playSong(
+      songs[currentIndex + 1],
+      currentIndex + 1
+    );
+
+  } else {
+
+    // Last song reached
+    setIsPlaying(false);
+
+  }
+
+};
+
+  const previousSong = () => {
+
+  if (currentIndex > 0) {
+
+    playSong(
+      songs[currentIndex - 1],
+      currentIndex - 1
+    );
+
+  }
+
+};
+
+useEffect(() => {
+  if (!player || !currentSong) return;
+
+  const interval = setInterval(() => {
+    try {
+      const current = player.getCurrentTime() || 0;
+      const total = player.getDuration() || 0;
+
+      setCurrentTime(current);
+      setDuration(total);
+    } catch (err) {}
+  }, 250);
+
+  return () => clearInterval(interval);
+}, [player, currentSong]);
+
+const formatTime = (time) => {
+
+    if (!time || isNaN(time)) return "0:00";
+
+    const minutes = Math.floor(time / 60);
+
+    const seconds = Math.floor(time % 60);
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+};
+
+  const seekTo = (time) => {
+
+  if (!player) return;
+
+  player.seekTo(time, true);
+
+  setCurrentTime(time);
+
+};
+
+  const togglePlayPause = () => {
+
+  if (!player) return;
+
+  if (isPlaying) {
+
+    player.pauseVideo();
+
+    setIsPlaying(false);
+
+  } else {
+
+    player.playVideo();
+
+    setIsPlaying(true);
+
+  }
+
+};
+
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+    <div className="app">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <Sidebar />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      <div className="main">
+
+        <Navbar />
+
+        <SearchBar
+          query={query}
+          setQuery={setQuery}
+          searchSongs={searchSongs}
+        />
+
+        {loading ? (
+
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <span className="loading-text">Finding your music...</span>
+          </div>
+
+        ) : (
+
+          <>
+
+            {songs.length > 0 && (
+
+              <>
+
+                <h2 className="section-title">
+
+                  Search Results
+
+                </h2>
+
+                <SongList
+                  songs={songs}
+                  playSong={playSong}
+                  toggleLike={toggleLike}
+                  likedSongs={likedSongs}
+                />
+
+              </>
+
+            )}
+
+            {recentSongs.length > 0 && (
+
+              <>
+
+                <h2 className="section-title">
+
+                  Recently Played
+
+                </h2>
+
+                <SongList
+                  songs={recentSongs}
+                  playSong={playSong}
+                  toggleLike={toggleLike}
+                  likedSongs={likedSongs}
+                />
+
+              </>
+
+            )}
+
+          </>
+
+        )}
+
+      </div>
+
+      <MusicPlayer
+
+    song={currentSong}
+
+    isPlaying={isPlaying}
+
+    togglePlayPause={togglePlayPause}
+
+    volume={volume}
+
+    setVolume={setVolume}
+
+    nextSong={nextSong}
+
+    previousSong={previousSong}
+
+    currentTime={currentTime}
+
+    duration={duration}
+
+    formatTime={formatTime}
+
+    seekTo={seekTo}
+
+
+/>
+     <YouTubePlayer
+    videoId={currentSong?.videoId}
+    isPlaying={isPlaying}
+    volume={volume}
+    onReady={setPlayer}
+    onEnd={handleSongEnd}
+    seekTo={seekTo}
+/>
+    </div>
+
+  );
+
 }
 
-export default App
+export default App;

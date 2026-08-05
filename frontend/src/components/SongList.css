@@ -1,0 +1,78 @@
+/* =============================================
+   SongList.css — TuneFlow AI
+   Responsive grid + polished empty state
+   ============================================= */
+
+/* ── Song Grid ── */
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+/* ── Empty / No Results State ── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 340px;
+  gap: 12px;
+  text-align: center;
+  padding: 20px;
+}
+
+.empty-icon {
+  font-size: 52px;
+  opacity: 0.4;
+  margin-bottom: 4px;
+  user-select: none;
+}
+
+.empty h2 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.empty p {
+  color: #636363;
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1200px) {
+  .song-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .song-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+
+  .empty h2 {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .song-grid {
+    /* Force 2 columns on small phones — cards are wide enough to be tappable */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .song-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
