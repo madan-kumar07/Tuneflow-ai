@@ -1,0 +1,70 @@
+/* =============================================
+   Navbar.css — TuneFlow AI
+   Top header bar with greeting and user icons
+   ============================================= */
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 0 20px;
+  color: #fff;
+  border-bottom: 1px solid #1f1f1f;
+  margin-bottom: 4px;
+}
+
+/* ── Greeting Text ── */
+.navbar h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.4px;
+  line-height: 1.2;
+}
+
+.navbar p {
+  color: #909090;
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: 6px;
+}
+
+/* ── Right Icons ── */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.icon {
+  font-size: 22px;
+  cursor: pointer;
+  color: #b3b3b3;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.icon:hover {
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.profile {
+  font-size: 34px;
+  color: #b3b3b3;
+}
+
+.profile:hover {
+  color: #1DB954;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .navbar h2 {
+    font-size: 22px;
+  }
+
+  .navbar p {
+    font-size: 13px;
+  }
+}

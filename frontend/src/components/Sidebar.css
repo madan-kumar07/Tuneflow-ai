@@ -1,0 +1,119 @@
+/* =============================================
+   Sidebar.css — TuneFlow AI
+   Spotify-inspired fixed left navigation
+   ============================================= */
+
+.sidebar {
+  width: 250px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding: 28px 16px 120px; /* bottom clears the music player */
+  background: #000;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #1a1a1a;
+}
+
+/* ── Logo ── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1DB954;
+  margin-bottom: 36px;
+  padding: 0 8px;
+  letter-spacing: -0.3px;
+  user-select: none;
+}
+
+.logo span {
+  font-size: 18px;
+  color: #fff;
+}
+
+/* ── Navigation Menu ── */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #b3b3b3;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  user-select: none;
+}
+
+.menu-item svg {
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.menu-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.menu-item.active {
+  color: #fff;
+  background: rgba(29, 185, 84, 0.08);
+  border-left-color: #1DB954;
+}
+
+/* ── Playlists Section ── */
+.playlists {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid #282828;
+  flex: 1;
+}
+
+.playlists h4 {
+  color: #6a6a6a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding: 0 12px;
+}
+
+.playlists p {
+  margin: 2px 0;
+  cursor: pointer;
+  color: #b3b3b3;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlists p:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── Responsive: Hide on small screens ── */
+@media (max-width: 1000px) {
+  .sidebar {
+    display: none;
+  }
+}

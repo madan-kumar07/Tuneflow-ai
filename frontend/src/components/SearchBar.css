@@ -1,0 +1,130 @@
+/* =============================================
+   SearchBar.css — TuneFlow AI
+   Full-width search bar with focus glow
+   ============================================= */
+
+.search-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  padding: 20px 0 8px;
+}
+
+/* ── Search Input Box ── */
+.search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #242424;
+  border-radius: 40px;
+  padding: 14px 20px;
+  border: 1.5px solid transparent;
+  transition: border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.search-box:focus-within {
+  background: #2a2a2a;
+  border-color: #1DB954;
+  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.12);
+}
+
+/* ── Search Icon ── */
+.search-icon {
+  color: #909090;
+  font-size: 17px;
+  margin-right: 14px;
+  flex-shrink: 0;
+  transition: color 0.25s ease;
+}
+
+.search-box:focus-within .search-icon {
+  color: #1DB954;
+}
+
+/* ── Text Input ── */
+.search-box input {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 400;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.1px;
+}
+
+.search-box input::placeholder {
+  color: #636363;
+}
+
+/* ── Search Button ── */
+.search-container button {
+  background: #1DB954;
+  color: #000;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 40px;
+  width: 130px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.3px;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+}
+
+.search-container button:hover {
+  background: #1ed760;
+  transform: scale(1.04);
+  box-shadow: 0 4px 16px rgba(29, 185, 84, 0.4);
+}
+
+.search-container button:active {
+  transform: scale(0.98);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .search-container {
+    flex-direction: column;
+    gap: 10px;
+    padding: 16px 0 6px;
+  }
+
+  .search-box {
+    width: 100%;
+    padding: 12px 16px;
+  }
+
+  .search-box input {
+    font-size: 14px;
+  }
+
+  .search-container button {
+    width: 100%;
+    padding: 13px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-box {
+    padding: 11px 14px;
+  }
+
+  .search-icon {
+    font-size: 15px;
+    margin-right: 10px;
+  }
+
+  .search-box input {
+    font-size: 13px;
+  }
+
+  .search-container button {
+    font-size: 13px;
+    padding: 12px;
+  }
+}

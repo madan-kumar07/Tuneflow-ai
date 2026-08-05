@@ -1,0 +1,179 @@
+/* =============================================
+   SongCard.css — TuneFlow AI
+   Premium music card with Spotify-style hover
+   ============================================= */
+
+.song-card {
+  background: #181818;
+  padding: 16px;
+  border-radius: 14px;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+}
+
+.song-card:hover {
+  background: #242424;
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(29, 185, 84, 0.15);
+}
+
+/* ── Thumbnail Image Container ── */
+.image-box {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.image-box img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  transition: filter 0.25s ease;
+}
+
+.song-card:hover .image-box img {
+  filter: brightness(0.75);
+}
+
+/* ── Overlay Play Button ── */
+.play-button {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  background: #1DB954;
+  color: #000;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.song-card:hover .play-button {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.play-button:hover {
+  background: #1ed760;
+  transform: scale(1.08) !important;
+  box-shadow: 0 6px 24px rgba(29, 185, 84, 0.5);
+}
+
+/* ── Song Title ── */
+.song-card h3 {
+  margin-top: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.4;
+  /* Two-line clamp — replaces fixed height: 45px */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ── Channel Name ── */
+.song-card p {
+  margin-top: 6px;
+  color: #909090;
+  font-size: 13px;
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Like Button ── */
+.like-button {
+  margin-top: 12px;
+  border: none;
+  background: none;
+  color: #636363;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.like-button:hover {
+  transform: scale(1.15);
+}
+
+/* Liked state — when FaHeart (filled) is rendered */
+.like-button svg[data-icon="heart"] {
+  color: #1DB954;
+}
+
+/* ── Responsive: smaller cards on tablet ── */
+@media (max-width: 768px) {
+  .song-card {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .song-card h3 {
+    font-size: 14px;
+  }
+
+  .play-button {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+}
+
+/*
+  ── Touch / Mobile Fix ──
+  On touch screens there is NO hover state.
+  The play button is opacity:0 by default (desktop hover-reveal pattern).
+  @media (hover: none) targets touch-only devices.
+  We always show the button so users can actually tap to play.
+*/
+@media (hover: none) {
+  /* Always show play button on touch devices */
+  .play-button {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+
+  /* Dim image slightly so button is readable */
+  .image-box img {
+    filter: brightness(0.88);
+  }
+
+  /* Disable card lift — causes layout jumps on touch */
+  .song-card:active {
+    background: #242424;
+    transform: scale(0.97);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Active tap feedback on play button */
+  .play-button:active {
+    background: #1ed760;
+    transform: scale(0.93);
+  }
+
+  /* Like button touch feedback */
+  .like-button:active {
+    transform: scale(1.2);
+    color: #1DB954;
+  }
+}
