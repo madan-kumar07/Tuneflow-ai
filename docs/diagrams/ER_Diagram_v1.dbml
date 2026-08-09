@@ -1,0 +1,51 @@
+Project TuneFlow_AI {
+  database_type: "PostgreSQL"
+  Note: "TuneFlow AI - Music Streaming Platform"
+}
+
+Table roles {
+  id bigint [pk, increment]
+  name varchar(255) [not null, unique]
+}
+
+Table users {
+  id bigint [pk, increment]
+  full_name varchar(255) [not null]
+  email varchar(255) [not null, unique]
+  password varchar(255) [not null]
+  role_id bigint
+}
+
+Table songs {
+  id bigint [pk, increment]
+  title varchar(255) [not null]
+  artist varchar(255) [not null]
+  album varchar(255)
+  genre varchar(255)
+  duration integer
+  image_url varchar(255)
+  audio_url varchar(255)
+  created_at timestamp [not null]
+}
+
+Table liked_songs {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  song_id bigint [not null]
+  created_at timestamp [not null]
+}
+
+Table listening_history {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  song_id bigint [not null]
+  played_at timestamp [not null]
+}
+
+Ref: users.role_id > roles.id
+
+Ref: liked_songs.user_id > users.id
+Ref: liked_songs.song_id > songs.id
+
+Ref: listening_history.user_id > users.id
+Ref: listening_history.song_id > songs.id

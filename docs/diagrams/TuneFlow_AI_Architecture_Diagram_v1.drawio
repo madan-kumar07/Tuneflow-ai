@@ -1,0 +1,101 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="TuneFlow AI — Architecture v1" id="0">
+    <mxGraphModel dx="2132" dy="831" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontSize=22;fontStyle=1;fontColor=#ffffff" value="TuneFlow AI — System Architecture Diagram v1" vertex="1">
+          <mxGeometry height="40" width="650" x="390" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" parent="1" style="text;html=1;strokeColor=none;fillColor=none;fontSize=12;fontColor=#555555" value="React Frontend • Spring Boot REST API • JWT Security • PostgreSQL • YouTube Data API" vertex="1">
+          <mxGeometry height="30" width="700" x="380" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="host" parent="1" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;dashed=1;strokeColor=#4f81bd;fillColor=#f7f9fc;fontSize=15;fontStyle=1;verticalAlign=top;spacingTop=10" value="APPLICATION HOSTING / DEPLOYMENT BOUNDARY" vertex="1">
+          <mxGeometry height="720" width="1240" x="30" y="95" as="geometry" />
+        </mxCell>
+        <mxCell id="client" parent="host" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#4f9cff;fillColor=#eaf3ff;fontSize=15;fontStyle=1;verticalAlign=top;spacingTop=10" value="CLIENT / PRESENTATION" vertex="1">
+          <mxGeometry height="560" width="300" x="25" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" parent="client" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#4f9cff;fillColor=#ffffff;fontSize=13;align=center;verticalAlign=middle" value="WEB BROWSER&#xa;&#xa;User" vertex="1">
+          <mxGeometry height="80" width="220" x="40" y="55" as="geometry" />
+        </mxCell>
+        <mxCell id="react" parent="client" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#00a8d6;fillColor=#ffffff;fontSize=12;align=center;verticalAlign=middle" value="REACT FRONTEND&#xa;&#xa;Login / Register&#xa;Home Page&#xa;Search Bar&#xa;Song List&#xa;Music Player&#xa;Protected Routes&#xa;Auth Context" vertex="1">
+          <mxGeometry height="220" width="240" x="30" y="165" as="geometry" />
+        </mxCell>
+        <mxCell id="local" parent="client" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#d59b21;fillColor=#fff8e6;fontSize=12;align=center;verticalAlign=middle" value="BROWSER LOCAL STORAGE&#xa;&#xa;Recently Played&#xa;Liked Songs" vertex="1">
+          <mxGeometry height="90" width="220" x="40" y="425" as="geometry" />
+        </mxCell>
+        <mxCell id="backend" parent="host" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#65b96e;fillColor=#eef8ef;fontSize=15;fontStyle=1;verticalAlign=top;spacingTop=10" value="SPRING BOOT BACKEND / REST API" vertex="1">
+          <mxGeometry height="560" width="545" x="355" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="security" parent="backend" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#ff7c70;fillColor=#fff0ef;fontSize=12;align=center;verticalAlign=middle" value="JWT AUTHENTICATION &amp; SPRING SECURITY&#xa;&#xa;JWT Service • JWT Filter • Security Configuration" vertex="1">
+          <mxGeometry height="80" width="485" x="30" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="controllers" parent="backend" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#65b96e;fillColor=#ffffff;fontSize=12;align=center;verticalAlign=middle" value="REST CONTROLLERS&#xa;&#xa;Auth Controller&#xa;Song Controller&#xa;YouTube Controller" vertex="1">
+          <mxGeometry height="90" width="295" x="125" y="155" as="geometry" />
+        </mxCell>
+        <mxCell id="services" parent="backend" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#65b96e;fillColor=#ffffff;fontSize=12;align=center;verticalAlign=middle" value="SERVICE LAYER&#xa;&#xa;Auth Service • Song Service • YouTube Service" vertex="1">
+          <mxGeometry height="75" width="485" x="30" y="275" as="geometry" />
+        </mxCell>
+        <mxCell id="repos" parent="backend" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#65b96e;fillColor=#ffffff;fontSize=12;align=center;verticalAlign=middle" value="REPOSITORY LAYER&#xa;&#xa;User Repository • Role Repository • Song Repository" vertex="1">
+          <mxGeometry height="75" width="485" x="30" y="385" as="geometry" />
+        </mxCell>
+        <mxCell id="api" parent="backend" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#777777;fillColor=#ffffff;fontSize=11;align=center;verticalAlign=middle" value="/auth/register • /auth/login • /api/songs • /api/youtube/search" vertex="1">
+          <mxGeometry height="40" width="430" x="55" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="host" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#a47de8;fillColor=#f5efff;fontSize=15;fontStyle=1;verticalAlign=top;spacingTop=10" value="DATABASE" vertex="1">
+          <mxGeometry height="250" width="250" x="935" y="45" as="geometry" />
+        </mxCell>
+        <mxCell id="postgres" parent="db" style="shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;strokeColor=#a47de8;fillColor=#ffffff;fontSize=13;align=center;verticalAlign=middle" value="POSTGRESQL&#xa;&#xa;User&#xa;Role&#xa;Song&#xa;LikedSong" vertex="1">
+          <mxGeometry height="125" width="160" x="45" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="external" parent="host" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#d59b21;fillColor=#fff8e6;fontSize=15;fontStyle=1;verticalAlign=top;spacingTop=10" value="EXTERNAL SERVICE" vertex="1">
+          <mxGeometry height="220" width="250" x="935" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="youtube" parent="external" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#d59b21;fillColor=#ffffff;fontSize=12;align=center;verticalAlign=middle" value="YOUTUBE DATA API&#xa;&#xa;External third-party service&#xa;Search / Video Data" vertex="1">
+          <mxGeometry height="105" width="200" x="25" y="65" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="host" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#64748b;fillColor=#f8fafc;fontSize=11;align=center;verticalAlign=middle" value="Hosting platform names can be added after deployment is finalized.&#xa;No platform is invented in this version." vertex="1">
+          <mxGeometry height="55" width="545" x="355" y="630" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="browser" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="react" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="react" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="controllers" value="REST + JWT">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="security" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="controllers" value="JWT validation">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="controllers" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="services" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="services" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="repos" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="repos" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="postgres" value="JPA / SQL">
+          <mxGeometry relative="1" x="0.2427" as="geometry">
+            <mxPoint y="1" as="offset" />
+            <Array as="points">
+              <mxPoint x="1090" y="540.08" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="services" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="youtube" value="YouTube search / video data">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="945.08" y="452.54" />
+              <mxPoint x="945.08" y="510.08" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" edge="1" parent="1" source="react" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeWidth=2" target="local" value="Local state">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="Ie3g3IJLo4g9POzbzdyZ-1" parent="1" style="text;html=1;fontSize=26;fontStyle=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;fontFamily=Helvetica" value="TuneFlow AI — System Architecture Diagram v1" vertex="1">
+          <mxGeometry height="45" width="666" x="310" y="10" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
