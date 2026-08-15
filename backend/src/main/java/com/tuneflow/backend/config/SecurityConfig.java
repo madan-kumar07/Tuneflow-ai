@@ -1,15 +1,22 @@
 package com.tuneflow.backend.config;
 
 import com.tuneflow.backend.security.JwtAuthenticationFilter;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import org.springframework.http.HttpMethod;
+
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import com.tuneflow.backend.security.CustomUserDetailsService;
+
 @Configuration
 public class SecurityConfig {
 
@@ -20,31 +27,60 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-            throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http) throws Exception {
 
         http
-                .csrf(csrf -> csrf.disable())
 
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            // CORS
+            .cors(Customizer.withDefaults())
 
-                .authorizeHttpRequests(auth -> auth
+            // REST API - CSRF disabled
+            .csrf(csrf -> csrf.disable())
 
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/api/youtube/**"
-                        ).permitAll()
+            // JWT - Stateless
+            .sessionManagement(session ->
+                    session.sessionCreationPolicy(
+                            SessionCreationPolicy.STATELESS
+                    )
+            )
 
-                        .anyRequest().authenticated()
-                )
+            // Authorization rules
+            .authorizeHttpRequests(auth -> auth
 
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                    // CORS preflight
+                    .requestMatchers(
+                            HttpMethod.OPTIONS,
+                            "/**"
+                    ).permitAll()
+
+                    // Authentication APIs
+                    .requestMatchers(
+                            "/auth/**",
+                            "/api/auth/**"
+                    ).permitAll()
+
+                    // Swagger
+                    .requestMatchers(
+                            "/swagger-ui/**",
+                            "/swagger-ui.html",
+                            "/v3/api-docs/**"
+                    ).permitAll()
+
+                    // YouTube search
+                    .requestMatchers(
+                            "/api/youtube/**"
+                    ).permitAll()
+
+                    // Remaining APIs require JWT
+                    .anyRequest().authenticated()
+            )
+
+            // JWT filter
+            .addFilterBefore(
+                    jwtAuthenticationFilter,
+                    UsernamePasswordAuthenticationFilter.class
+            );
 
         return http.build();
     }

@@ -19,5 +19,6 @@ public class SongResponse {
     private Integer duration;
     private String imageUrl;
     private String audioUrl;
+    private String videoId;
 
 }

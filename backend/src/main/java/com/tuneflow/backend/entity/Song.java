@@ -9,7 +9,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "songs")
+@Table(
+    name = "songs",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = "video_id")
+    }
+)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,6 +35,7 @@ public class Song {
 
     private String genre;
 
+    @Column(nullable = false)
     private Integer duration;
 
     @Column(name = "image_url")
@@ -38,11 +44,14 @@ public class Song {
     @Column(name = "audio_url")
     private String audioUrl;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "video_id", unique = true)
+    private String videoId;
+
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
     }
 }

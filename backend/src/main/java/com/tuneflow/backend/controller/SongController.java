@@ -7,7 +7,7 @@ import com.tuneflow.backend.dto.UpdateSongRequest;
 import com.tuneflow.backend.service.SongService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.security.core.Authentication;
 import java.util.List;
 
 @RestController
@@ -25,6 +25,15 @@ public class SongController {
     @GetMapping
     public List<SongDTO> getAllSongs() {
         return songService.getAllSongs();
+    }
+
+    @GetMapping("/liked")
+    public List<SongDTO> getLikedSongs(
+        Authentication authentication) {
+
+        return songService.getLikedSongs(
+            authentication.getName()
+        );
     }
 
     // Get song by ID
@@ -52,4 +61,29 @@ public class SongController {
         songService.deleteSong(id);
         return "Song deleted successfully";
     }
+
+    @PostMapping("/{id}/like")
+public String likeSong(
+        @PathVariable Long id,
+        Authentication authentication) {
+
+    return songService.likeSong(
+            id,
+            authentication.getName()
+    );
+}
+
+
+@DeleteMapping("/{id}/like")
+public String unlikeSong(
+        @PathVariable Long id,
+        Authentication authentication) {
+
+    return songService.unlikeSong(
+            id,
+            authentication.getName()
+    );
+}
+
+
 }

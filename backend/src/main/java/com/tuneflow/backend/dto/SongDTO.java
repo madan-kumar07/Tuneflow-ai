@@ -26,4 +26,6 @@ public class SongDTO {
     private String imageUrl;
 
     private String audioUrl;
+
+    private String videoId;
 }

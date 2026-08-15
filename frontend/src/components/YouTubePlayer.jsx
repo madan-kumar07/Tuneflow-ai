@@ -36,6 +36,7 @@ function YouTubePlayer({
     }
   };
 
+  // Play / Pause
   useEffect(() => {
     if (!playerRef.current) return;
 
@@ -46,21 +47,23 @@ function YouTubePlayer({
     }
   }, [isPlaying]);
 
+  // Volume
   useEffect(() => {
     if (!playerRef.current) return;
 
     playerRef.current.setVolume(volume * 100);
   }, [volume]);
 
-  // useEffect(() => {
-  //   if (!playerRef.current || !videoId) return;
+  // Change video when current song changes
+  useEffect(() => {
+    if (!playerRef.current || !videoId) return;
 
-  //   playerRef.current.loadVideoById(videoId);
+    playerRef.current.loadVideoById(videoId);
 
-  //   if (isPlaying) {
-  //     playerRef.current.playVideo();
-  //   }
-  // }, [videoId]);
+    if (isPlaying) {
+      playerRef.current.playVideo();
+    }
+  }, [videoId]);
 
   if (!videoId) return null;
 

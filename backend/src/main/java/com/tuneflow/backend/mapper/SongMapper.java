@@ -8,36 +8,26 @@ import com.tuneflow.backend.entity.Song;
 
 public class SongMapper {
 
-    // Entity -> DTO
+    private SongMapper() {
+    }
+
     public static SongDTO toDTO(Song song) {
-        return SongDTO.builder()
-                .id(song.getId())
-                .title(song.getTitle())
-                .artist(song.getArtist())
-                .album(song.getAlbum())
-                .genre(song.getGenre())
-                .duration(song.getDuration())
-                .imageUrl(song.getImageUrl())
-                .audioUrl(song.getAudioUrl())
-                .build();
+
+        return new SongDTO(
+                song.getId(),
+                song.getTitle(),
+                song.getArtist(),
+                song.getAlbum(),
+                song.getGenre(),
+                song.getDuration(),
+                song.getImageUrl(),
+                song.getAudioUrl(),
+                song.getVideoId()
+        );
     }
 
-    // Entity -> Response
-    public static SongResponse toResponse(Song song) {
-        return SongResponse.builder()
-                .id(song.getId())
-                .title(song.getTitle())
-                .artist(song.getArtist())
-                .album(song.getAlbum())
-                .genre(song.getGenre())
-                .duration(song.getDuration())
-                .imageUrl(song.getImageUrl())
-                .audioUrl(song.getAudioUrl())
-                .build();
-    }
-
-    // Create Request -> Entity
     public static Song toEntity(CreateSongRequest request) {
+
         return Song.builder()
                 .title(request.getTitle())
                 .artist(request.getArtist())
@@ -46,17 +36,59 @@ public class SongMapper {
                 .duration(request.getDuration())
                 .imageUrl(request.getImageUrl())
                 .audioUrl(request.getAudioUrl())
+                .videoId(request.getVideoId())
                 .build();
     }
 
-    // Update existing Entity
-    public static void updateEntity(UpdateSongRequest request, Song song) {
-        song.setTitle(request.getTitle());
-        song.setArtist(request.getArtist());
-        song.setAlbum(request.getAlbum());
-        song.setGenre(request.getGenre());
-        song.setDuration(request.getDuration());
-        song.setImageUrl(request.getImageUrl());
-        song.setAudioUrl(request.getAudioUrl());
+    public static void updateEntity(
+            UpdateSongRequest request,
+            Song song) {
+
+        if (request.getTitle() != null) {
+            song.setTitle(request.getTitle());
+        }
+
+        if (request.getArtist() != null) {
+            song.setArtist(request.getArtist());
+        }
+
+        if (request.getAlbum() != null) {
+            song.setAlbum(request.getAlbum());
+        }
+
+        if (request.getGenre() != null) {
+            song.setGenre(request.getGenre());
+        }
+
+        if (request.getDuration() != null) {
+            song.setDuration(request.getDuration());
+        }
+
+        if (request.getImageUrl() != null) {
+            song.setImageUrl(request.getImageUrl());
+        }
+
+        if (request.getAudioUrl() != null) {
+            song.setAudioUrl(request.getAudioUrl());
+        }
+
+        if (request.getVideoId() != null) {
+            song.setVideoId(request.getVideoId());
+        }
+    }
+
+    public static SongResponse toResponse(Song song) {
+
+        return new SongResponse(
+                song.getId(),
+                song.getTitle(),
+                song.getArtist(),
+                song.getAlbum(),
+                song.getGenre(),
+                song.getDuration(),
+                song.getImageUrl(),
+                song.getAudioUrl(),
+                song.getVideoId()
+        );
     }
 }

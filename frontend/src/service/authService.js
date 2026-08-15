@@ -1,6 +1,19 @@
 import axios from "axios";
 
-const API = "http://localhost:8080/auth";
+const API = "http://localhost:8080/api/auth";
+
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export const loginUser = async (loginData) => {
   const response = await axios.post(`${API}/login`, loginData);
