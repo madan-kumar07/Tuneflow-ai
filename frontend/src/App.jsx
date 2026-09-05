@@ -4,43 +4,124 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
+import LikedSongs from "./pages/LikedSongs";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import MusicPlayer from "./components/MusicPlayer";
+
+import {
+  PlayerProvider,
+  usePlayer,
+} from "./context/PlayerContext";
+
+import "./App.css";
+
+const GlobalPlayer = () => {
+  const {
+    currentSong,
+    isPlaying,
+    volume,
+    setVolume,
+    nextSong,
+    previousSong,
+    togglePlayPause,
+    currentTime,
+    duration,
+    seekTo,
+  } = usePlayer();
+
+  if (!currentSong) {
+    return null;
+  }
+
+  const formatTime = (time) => {
+    if (!time || Number.isNaN(Number(time))) {
+      return "0:00";
+    }
+
+    const totalSeconds =
+      Math.floor(Number(time));
+
+    const minutes =
+      Math.floor(totalSeconds / 60);
+
+    const seconds =
+      totalSeconds % 60;
+
+    return `${minutes}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  return (
+    <MusicPlayer
+      song={currentSong}
+      isPlaying={isPlaying}
+      togglePlayPause={togglePlayPause}
+      volume={volume}
+      setVolume={setVolume}
+      nextSong={nextSong}
+      previousSong={previousSong}
+      currentTime={currentTime}
+      duration={duration}
+      formatTime={formatTime}
+      seekTo={seekTo}
+    />
+  );
+};
 
 function App() {
   return (
-    <Routes>
+    <PlayerProvider>
 
-      {/* PUBLIC ROUTES */}
+      <Routes>
 
-      <Route
-        path="/login"
-        element={<Login />}
-      />
+        {/* PUBLIC */}
 
-      <Route
-        path="/register"
-        element={<Register />}
-      />
+        <Route
+          path="/login"
+          element={<Login />}
+        />
 
-      <Route
-        path="/verify-otp"
-        element={<VerifyOtp />}
-      />
+        <Route
+          path="/register"
+          element={<Register />}
+        />
 
+        <Route
+          path="/verify-otp"
+          element={<VerifyOtp />}
+        />
 
-      {/* PROTECTED ROUTE */}
+        {/* HOME */}
 
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
-    </Routes>
+        {/* LIKED SONGS */}
+
+        <Route
+          path="/liked-songs"
+          element={
+            <ProtectedRoute>
+              <LikedSongs />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+
+      {/* ONE PLAYER FOR ENTIRE APP */}
+
+      <GlobalPlayer />
+
+    </PlayerProvider>
   );
 }
 

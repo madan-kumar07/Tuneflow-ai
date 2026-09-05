@@ -1,4 +1,3 @@
-import React from "react";
 import {
   FaHome,
   FaSearch,
@@ -6,20 +5,28 @@ import {
   FaMusic,
   FaPlus,
 } from "react-icons/fa";
+
+import { NavLink } from "react-router-dom";
+
 import "./Sidebar.css";
 
 const Sidebar = () => {
   return (
     <div className="sidebar">
+
       <div className="logo">
         🎵 <span>TuneFlow AI</span>
       </div>
 
       <div className="menu">
-        <div className="menu-item active">
+
+        <NavLink
+          to="/"
+          className="menu-item"
+        >
           <FaHome />
           <span>Home</span>
-        </div>
+        </NavLink>
 
         <div className="menu-item">
           <FaSearch />
@@ -31,15 +38,23 @@ const Sidebar = () => {
           <span>Your Library</span>
         </div>
 
-        <div className="menu-item">
+        <NavLink
+          to="/liked-songs"
+          className={({ isActive }) =>
+            `menu-item ${
+              isActive ? "active" : ""
+            }`
+          }
+        >
           <FaHeart />
           <span>Liked Songs</span>
-        </div>
+        </NavLink>
 
         <div className="menu-item">
           <FaPlus />
           <span>Create Playlist</span>
         </div>
+
       </div>
 
       <div className="playlists">
@@ -50,7 +65,9 @@ const Sidebar = () => {
         <p>💪 Gym Beats</p>
         <p>🌙 Night Vibes</p>
         <p>🎧 Chill Mix</p>
+
       </div>
+
     </div>
   );
 };
