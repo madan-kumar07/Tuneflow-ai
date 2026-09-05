@@ -11,8 +11,8 @@ function YouTubePlayer({
   const playerRef = useRef(null);
 
   const opts = {
-    height: "0",
-    width: "0",
+    height: "1",
+    width: "1",
     playerVars: {
       autoplay: 1,
       controls: 0,
@@ -25,54 +25,72 @@ function YouTubePlayer({
   const handleReady = (event) => {
     playerRef.current = event.target;
 
-    event.target.setVolume(volume * 100);
+    try {
+      event.target.setVolume(volume * 100);
 
-    if (onReady) {
-      onReady(event.target);
-    }
+      if (onReady) {
+        onReady(event.target);
+      }
 
-    if (isPlaying) {
-      event.target.playVideo();
+      if (isPlaying) {
+        event.target.playVideo();
+      }
+    } catch (error) {
+      console.log("YouTube player ready error:", error);
     }
   };
 
-  // Play / Pause
+  const handleEnd = () => {
+    if (onEnd) {
+      onEnd();
+    }
+  };
+
   useEffect(() => {
     if (!playerRef.current) return;
 
-    if (isPlaying) {
-      playerRef.current.playVideo();
-    } else {
-      playerRef.current.pauseVideo();
+    try {
+      if (isPlaying) {
+        playerRef.current.playVideo();
+      } else {
+        playerRef.current.pauseVideo();
+      }
+    } catch (error) {
+      console.log("YouTube play/pause error:", error);
     }
   }, [isPlaying]);
 
-  // Volume
   useEffect(() => {
     if (!playerRef.current) return;
 
-    playerRef.current.setVolume(volume * 100);
+    try {
+      playerRef.current.setVolume(volume * 100);
+    } catch (error) {
+      console.log("YouTube volume error:", error);
+    }
   }, [volume]);
 
-  // Change video when current song changes
+  // Important:
+  // When song changes, force YouTube player to create a fresh instance.
   useEffect(() => {
-    if (!playerRef.current || !videoId) return;
+    playerRef.current = null;
 
-    playerRef.current.loadVideoById(videoId);
-
-    if (isPlaying) {
-      playerRef.current.playVideo();
-    }
+    return () => {
+      playerRef.current = null;
+    };
   }, [videoId]);
 
-  if (!videoId) return null;
+  if (!videoId) {
+    return null;
+  }
 
   return (
     <YouTube
+      key={videoId}
       videoId={videoId}
       opts={opts}
       onReady={handleReady}
-      onEnd={onEnd}
+      onEnd={handleEnd}
     />
   );
 }
