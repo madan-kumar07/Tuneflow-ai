@@ -5,16 +5,18 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
 import LikedSongs from "./pages/LikedSongs";
+import Playlist from "./pages/Playlist";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import MusicPlayer from "./components/MusicPlayer";
 
-import {
-  PlayerProvider,
-  usePlayer,
-} from "./context/PlayerContext";
+import { PlayerProvider, usePlayer } from "./context/PlayerContext";
 
 import "./App.css";
+
+/* ================================
+   GLOBAL MUSIC PLAYER
+================================ */
 
 const GlobalPlayer = () => {
   const {
@@ -39,18 +41,11 @@ const GlobalPlayer = () => {
       return "0:00";
     }
 
-    const totalSeconds =
-      Math.floor(Number(time));
+    const totalSeconds = Math.floor(Number(time));
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
 
-    const minutes =
-      Math.floor(totalSeconds / 60);
-
-    const seconds =
-      totalSeconds % 60;
-
-    return `${minutes}:${seconds
-      .toString()
-      .padStart(2, "0")}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -70,30 +65,27 @@ const GlobalPlayer = () => {
   );
 };
 
+/* ================================
+   APP
+================================ */
+
 function App() {
   return (
     <PlayerProvider>
-
       <Routes>
+        {/* =========================
+            PUBLIC ROUTES
+        ========================= */}
 
-        {/* PUBLIC */}
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+        <Route path="/register" element={<Register />} />
 
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+        <Route path="/verify-otp" element={<VerifyOtp />} />
 
-        <Route
-          path="/verify-otp"
-          element={<VerifyOtp />}
-        />
-
-        {/* HOME */}
+        {/* =========================
+            PROTECTED ROUTES
+        ========================= */}
 
         <Route
           path="/"
@@ -104,8 +96,6 @@ function App() {
           }
         />
 
-        {/* LIKED SONGS */}
-
         <Route
           path="/liked-songs"
           element={
@@ -115,12 +105,28 @@ function App() {
           }
         />
 
+        <Route
+          path="/playlists"
+          element={
+            <ProtectedRoute>
+              <Playlist />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Individual playlist */}
+        <Route
+          path="/playlists/:playlistId"
+          element={
+            <ProtectedRoute>
+              <Playlist />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
-      {/* ONE PLAYER FOR ENTIRE APP */}
-
+      {/* ONE GLOBAL PLAYER FOR THE ENTIRE APP */}
       <GlobalPlayer />
-
     </PlayerProvider>
   );
 }

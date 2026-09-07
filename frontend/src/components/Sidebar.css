@@ -1,120 +1,473 @@
-/* =============================================
-   Sidebar.css — TuneFlow AI
-   Spotify-inspired fixed left navigation
-   ============================================= */
+/* =========================================================
+   TUNEFLOW AI
+   CHATGPT-STYLE COLLAPSIBLE SIDEBAR
+   ========================================================= */
 
 .sidebar {
+  position: relative;
+
   width: 250px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  padding: 28px 16px 120px; /* bottom clears the music player */
-  background: #000;
-  overflow-y: auto;
+  min-width: 250px;
+  height: 100vh;
+
+  box-sizing: border-box;
+
+  background: #0b0b0d;
+
+  border-right: 1px solid #202024;
+
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #1a1a1a;
+
+  padding: 10px 10px;
+
+  transition:
+    width 0.25s ease,
+    min-width 0.25s ease;
+
+  overflow: hidden;
+
+  z-index: 1000;
 }
 
-/* ── Logo ── */
-.logo {
+
+/* =========================================================
+   COLLAPSED
+   ========================================================= */
+
+.sidebar-collapsed {
+  width: 64px;
+  min-width: 64px;
+}
+
+
+/* =========================================================
+   TOP
+   ========================================================= */
+
+.sidebar-top {
+  height: 48px;
+
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 20px;
-  font-weight: 700;
-  color: #1DB954;
-  margin-bottom: 36px;
-  padding: 0 8px;
-  letter-spacing: -0.3px;
-  user-select: none;
+
+  gap: 8px;
+
+  margin-bottom: 18px;
+
+  position: relative;
 }
 
-.logo span {
-  font-size: 18px;
-  color: #fff;
-}
 
-/* ── Navigation Menu ── */
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+/* =========================================================
+   TOGGLE BUTTON
+   ========================================================= */
 
-.menu-item {
+.sidebar-toggle {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: transparent;
+
+  color: #a7a7ad;
+
   display: flex;
   align-items: center;
-  gap: 14px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  color: #b3b3b3;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border-left: 3px solid transparent;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-  user-select: none;
-  text-decoration: none;
-}
+  justify-content: center;
 
-.menu-item svg {
   font-size: 17px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  background: #1d1d20;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   BRAND
+   ========================================================= */
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  min-width: 0;
+
+  white-space: nowrap;
+}
+
+.brand-icon {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  border-radius: 9px;
+
+  background: linear-gradient(
+    135deg,
+    #7c3aed,
+    #a78bfa
+  );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 19px;
+
+  box-shadow:
+    0 5px 18px rgba(124, 58, 237, 0.25);
+}
+
+.brand-text {
+  color: #ffffff;
+
+  font-size: 16px;
+  font-weight: 750;
+
+  letter-spacing: -0.3px;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   MAIN MENU
+   ========================================================= */
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  width: 100%;
+}
+
+
+/* =========================================================
+   MENU ITEM
+   ========================================================= */
+
+.sidebar-item {
+  width: 100%;
+  height: 44px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #a8a8ad;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 0 12px;
+
+  font-family: inherit;
+
+  font-size: 14px;
+  font-weight: 550;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  text-align: left;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.sidebar-item svg {
+  width: 18px;
+  min-width: 18px;
+
+  height: 18px;
+
   flex-shrink: 0;
 }
 
-.menu-item:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.06);
+.sidebar-item:hover {
+  background: #1b1b1f;
+  color: #ffffff;
 }
 
-.menu-item.active {
-  color: #fff;
-  background: rgba(29, 185, 84, 0.08);
-  border-left-color: #1DB954;
+.sidebar-item.active {
+  background: #20162f;
+  color: #ffffff;
 }
 
-/* ── Playlists Section ── */
-.playlists {
-  margin-top: 32px;
-  padding-top: 20px;
-  border-top: 1px solid #282828;
-  flex: 1;
+.sidebar-item.active svg {
+  color: #a78bfa;
 }
 
-.playlists h4 {
-  color: #6a6a6a;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-  padding: 0 12px;
+
+/* =========================================================
+   COLLAPSED MENU
+   ========================================================= */
+
+.sidebar-collapsed .sidebar-item {
+  justify-content: center;
+
+  padding: 0;
 }
 
-.playlists p {
-  margin: 2px 0;
-  cursor: pointer;
-  color: #b3b3b3;
-  font-size: 14px;
-  font-weight: 400;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: color 0.2s ease, background 0.2s ease;
-  white-space: nowrap;
+.sidebar-collapsed .sidebar-item svg {
+  width: 19px;
+  height: 19px;
+}
+
+.sidebar-collapsed .sidebar-item.active {
+  background: #20162f;
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.sidebar-label {
   overflow: hidden;
+
+  white-space: nowrap;
+
+  transition:
+    opacity 0.15s ease;
+}
+
+.sidebar-collapsed .sidebar-label {
+  display: none;
+}
+
+
+/* =========================================================
+   PLAYLIST AREA
+   ========================================================= */
+
+.sidebar-playlists {
+  flex: 1;
+
+  min-height: 0;
+
+  margin-top: 24px;
+  padding-top: 20px;
+
+  border-top: 1px solid #222226;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   PLAYLIST HEADING
+   ========================================================= */
+
+.playlist-heading {
+  padding: 0 12px;
+
+  margin-bottom: 10px;
+
+  color: #68686f;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   PLAYLIST ITEM
+   ========================================================= */
+
+.sidebar-playlist {
+  width: 100%;
+  min-height: 40px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent;
+
+  color: #9b9ba1;
+
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 7px 12px;
+
+  font-family: inherit;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  white-space: nowrap;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.sidebar-playlist:hover {
+  background: #18181b;
+  color: #ffffff;
+}
+
+.sidebar-playlist.active {
+  background: #20162f;
+  color: #ffffff;
+}
+
+
+/* =========================================================
+   PLAYLIST ICON
+   ========================================================= */
+
+.playlist-mini-icon {
+  width: 27px;
+  height: 27px;
+
+  flex-shrink: 0;
+
+  border-radius: 7px;
+
+  background: linear-gradient(
+    135deg,
+    #30205d,
+    #17171a
+  );
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   PLAYLIST NAME
+   ========================================================= */
+
+.playlist-title {
+  flex: 1;
+
+  min-width: 0;
+
+  overflow: hidden;
+
   text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+  font-size: 13px;
 }
 
-.playlists p:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.no-playlists {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 8px 12px;
+
+  color: #55555b;
+
+  font-size: 12px;
 }
 
-/* ── Responsive: Hide on small screens ── */
-@media (max-width: 1000px) {
+.no-playlists svg {
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.sidebar-playlists::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-playlists::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-playlists::-webkit-scrollbar-thumb {
+  background: #29292e;
+  border-radius: 10px;
+}
+
+
+/* =========================================================
+   SIDEBAR SCROLLBAR
+   ========================================================= */
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #252529;
+  border-radius: 10px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
   .sidebar {
+    width: 68px;
+    min-width: 68px;
+  }
+
+  .sidebar .sidebar-label,
+  .sidebar .sidebar-brand,
+  .sidebar .sidebar-playlists {
     display: none;
+  }
+
+  .sidebar .sidebar-item {
+    justify-content: center;
+    padding: 0;
   }
 }

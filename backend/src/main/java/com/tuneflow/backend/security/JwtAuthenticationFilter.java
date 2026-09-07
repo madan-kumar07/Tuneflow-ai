@@ -1,9 +1,12 @@
 package com.tuneflow.backend.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,38 +37,82 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        final String authHeader =
+                request.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        /*
+         * No JWT → continue normally.
+         */
+        if (authHeader == null ||
+                !authHeader.startsWith("Bearer ")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
-        String jwt = authHeader.substring(7);
-        String email = jwtService.extractUsername(jwt);
+        final String jwt =
+                authHeader.substring(7);
 
-        if (email != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+        try {
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(email);
+            /*
+             * Extract email from JWT.
+             */
+            String email =
+                    jwtService.extractUsername(jwt);
 
-            if (jwtService.isTokenValid(jwt, email)) {
+            /*
+             * Authenticate only if no authentication
+             * already exists.
+             */
+            if (email != null &&
+                    SecurityContextHolder
+                            .getContext()
+                            .getAuthentication() == null) {
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities());
+                UserDetails userDetails =
+                        userDetailsService
+                                .loadUserByUsername(email);
 
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request));
+                /*
+                 * Validate JWT.
+                 */
+                if (jwtService.isTokenValid(jwt, email)) {
 
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authToken);
+                    UsernamePasswordAuthenticationToken
+                            authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+
+                    authToken.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(request)
+                    );
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(authToken);
+                }
             }
+
+        } catch (ExpiredJwtException e) {
+
+            /*
+             * JWT expired.
+             * Do not crash the request.
+             * Let Spring Security return 401/403.
+             */
+            SecurityContextHolder.clearContext();
+
+        } catch (JwtException | IllegalArgumentException e) {
+
+            /*
+             * Invalid JWT.
+             */
+            SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
