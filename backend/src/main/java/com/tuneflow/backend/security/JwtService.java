@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -14,11 +15,11 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final String SECRET =
-            "1234567890123456789012345678901212345678901234567890123456789012";
+    @Value("${jwt.secret:1234567890123456789012345678901212345678901234567890123456789012}")
+    private String secret;
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Base64.getEncoder().encode(SECRET.getBytes());
+        byte[] keyBytes = Base64.getEncoder().encode(secret.getBytes());
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

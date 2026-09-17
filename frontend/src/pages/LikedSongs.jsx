@@ -14,8 +14,11 @@ import { usePlayer } from "../context/PlayerContext";
 
 import "./LikedSongs.css";
 
-const API_BASE_URL =
-  "http://localhost:8080";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:8080"
+).replace(/\/$/, "");
 
 const LIKED_SONGS_URL =
   `${API_BASE_URL}/api/songs/liked`;

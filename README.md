@@ -294,33 +294,59 @@ Use this order when starting the complete application:
 6. Test protected APIs and music features
 ```
 
-## 9. Environment Variables
+## 9. Environment Variables & Production Deployment
 
-The following configuration values are required for local execution.
+### 9.1 Environment Variables Table
 
-| Variable | Description | Required |
-|---|---|---|
-| `DB_URL` | PostgreSQL JDBC connection URL | Yes |
-| `DB_USERNAME` | PostgreSQL database username | Yes |
-| `DB_PASSWORD` | PostgreSQL database password | Yes |
-| `JWT_SECRET` | Secret used for signing and validating JWT tokens | Yes |
-| `YOUTUBE_API_KEY` | YouTube Data API key used for music search | Yes |
+#### Backend Environment Variables (Render / Railway)
 
-### Example Local Configuration
+| Variable | Description | Required | Target Platform |
+|---|---|---|---|
+| `PORT` | Dynamic port provided by server | Auto | Render |
+| `DATABASE_URL` | Full PostgreSQL connection string | Yes | Railway / Render |
+| `DB_URL` | Alternative PostgreSQL JDBC connection URL | Optional | Render |
+| `DB_USERNAME` | PostgreSQL database username | Yes | Railway / Render |
+| `DB_PASSWORD` | PostgreSQL database password | Yes | Railway / Render |
+| `JWT_SECRET` | Secret key for signing/validating JWT tokens | Yes | Render |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed frontend URLs | Yes | Render |
+| `YOUTUBE_API_KEY` | YouTube Data API v3 key | Yes | Render |
+| `MAIL_HOST` | SMTP server host (e.g. `smtp.gmail.com`) | Yes | Render |
+| `MAIL_PORT` | SMTP server port (e.g. `587`) | Yes | Render |
+| `MAIL_USERNAME` | SMTP email address | Yes | Render |
+| `MAIL_PASSWORD` | SMTP app password | Yes | Render |
+| `MAIL_FROM` | Sender email address | Yes | Render |
 
-Use your local environment/configuration mechanism to provide these values.
+#### Frontend Environment Variables (Vercel)
 
-```text
-DB_URL=jdbc:postgresql://localhost:5432/tuneflow
-DB_USERNAME=<your_database_username>
-DB_PASSWORD=<your_database_password>
-JWT_SECRET=<your_local_jwt_secret>
-YOUTUBE_API_KEY=<your_youtube_api_key>
-```
+| Variable | Description | Required | Target Platform |
+|---|---|---|---|
+| `VITE_API_BASE_URL` | Deployed Spring Boot backend API URL (e.g. `https://tuneflow-backend.onrender.com`) | Yes | Vercel |
 
-**Never commit actual secrets, passwords, or API keys to GitHub.**
+### 9.2 Production Deployment Guide
 
-The real local environment file must remain excluded through `.gitignore`.
+#### 1. Railway (PostgreSQL Database)
+1. Log in to [Railway.app](https://railway.app) and create a new PostgreSQL database instance.
+2. Note the generated database variables: `DATABASE_URL` or `HOST`, `PORT`, `DATABASE`, `USER`, `PASSWORD`.
+
+#### 2. Render (Spring Boot Backend)
+1. Log in to [Render.com](https://render.com) and create a new **Web Service**.
+2. Connect your GitHub repository `madan-kumar07/Tuneflow-ai` and set Root Directory to `backend`.
+3. Set Build Command: `./mvnw clean package -DskipTests`
+4. Set Start Command: `java -jar target/backend-0.0.1-SNAPSHOT.jar`
+5. Configure Environment Variables in Render Dashboard:
+   - `DATABASE_URL` (from Railway)
+   - `DB_USERNAME`, `DB_PASSWORD`
+   - `JWT_SECRET`
+   - `CORS_ALLOWED_ORIGINS` (e.g. `https://your-app.vercel.app`)
+   - `YOUTUBE_API_KEY`
+   - `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`
+
+#### 3. Vercel (React Frontend)
+1. Log in to [Vercel.com](https://vercel.com) and import `madan-kumar07/Tuneflow-ai`.
+2. Set Root Directory to `frontend`.
+3. Set Environment Variables in Vercel Dashboard:
+   - `VITE_API_BASE_URL` = `https://your-backend.onrender.com`
+4. Deploy. SPA rewrites are automatically configured via `frontend/vercel.json`.
 
 ## 10. API Documentation
 

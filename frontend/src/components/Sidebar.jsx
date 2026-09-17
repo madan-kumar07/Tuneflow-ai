@@ -23,8 +23,13 @@ import {
 
 import "./Sidebar.css";
 
-const API_URL =
-  "http://localhost:8080/api/playlists";
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_API_URL ||
+  "http://localhost:8080"
+).replace(/\/$/, "");
+
+const API_URL = `${API_BASE_URL}/api/playlists`;
 
 const Sidebar = ({
   onCreatePlaylist,
