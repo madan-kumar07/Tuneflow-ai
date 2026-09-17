@@ -9,6 +9,8 @@ import com.tuneflow.backend.repository.RoleRepository;
 import com.tuneflow.backend.repository.UserRepository;
 import com.tuneflow.backend.security.JwtService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,12 +19,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final OtpService otpService;
+    private final EmailService emailService;
 
     public AuthService(
             UserRepository userRepository,
@@ -30,7 +35,8 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
             AuthenticationManager authenticationManager,
-            OtpService otpService) {
+            OtpService otpService,
+            EmailService emailService) {
 
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
@@ -38,6 +44,7 @@ public class AuthService {
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.otpService = otpService;
+        this.emailService = emailService;
     }
 
     /**
@@ -136,6 +143,15 @@ public class AuthService {
                 jwtService.generateToken(
                         user.getEmail()
                 );
+
+        try {
+            emailService.sendLoginNotification(
+                    user.getEmail(),
+                    user.getFullName()
+            );
+        } catch (Exception e) {
+            log.error("Failed to send login notification email to user", e);
+        }
 
         return new AuthResponse(
                 token,

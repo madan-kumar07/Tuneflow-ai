@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import VerifyOtp from "./pages/VerifyOtp";
 import LikedSongs from "./pages/LikedSongs";
 import Playlist from "./pages/Playlist";
+import History from "./pages/History";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import MusicPlayer from "./components/MusicPlayer";
@@ -120,6 +121,16 @@ function App() {
           element={
             <ProtectedRoute>
               <Playlist />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* History route */}
+        <Route
+          path="/history"
+          element={
+            <ProtectedRoute>
+              <History />
             </ProtectedRoute>
           }
         />

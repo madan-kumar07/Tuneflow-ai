@@ -1,19 +1,25 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getHistory } from "../service/historyService";
+import { searchVideos } from "../service/youtubeService";
+
 import {
   FaBell,
   FaCheck,
+  FaChevronDown,
   FaHeart,
   FaMusic,
   FaPlus,
   FaSearch,
+  FaSignOutAlt,
   FaTimes,
 } from "react-icons/fa";
 
 import Sidebar from "../components/Sidebar";
 import SongList from "../components/SongList";
-import MusicPlayer from "../components/MusicPlayer";
-import YouTubePlayer from "../components/YouTubePlayer";
+
+import { usePlayer } from "../context/PlayerContext";
 
 import "./Home.css";
 
@@ -89,6 +95,50 @@ const normalizeSong = (song) => {
 ========================================================= */
 
 function Home() {
+  const navigate = useNavigate();
+  const userMenuRef = useRef(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [currentUserName, setCurrentUserName] = useState("TuneFlow User");
+
+  const getCurrentUserName = () => {
+    const keys = ["user", "userData", "authUser", "currentUser", "loggedInUser"];
+    for (const key of keys) {
+      try {
+        const value = localStorage.getItem(key);
+        if (!value) continue;
+        const user = JSON.parse(value);
+        const name = user?.fullName || user?.name || user?.username || user?.displayName;
+        if (name && String(name).trim()) return String(name).trim();
+      } catch {}
+    }
+    const email = localStorage.getItem("email");
+    if (email && email.includes("@")) {
+      return email.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    }
+    return "TuneFlow User";
+  };
+
+  const handleLogout = () => {
+    ["token", "user", "userData", "authUser", "currentUser", "loggedInUser", "email"].forEach(key => localStorage.removeItem(key));
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+    setShowUserMenu(false);
+    navigate("/login", { replace: true });
+  };
+
+  useEffect(() => {
+    setCurrentUserName(getCurrentUserName());
+  }, []);
+
+  useEffect(() => {
+    const closeMenu = event => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", closeMenu);
+    return () => document.removeEventListener("mousedown", closeMenu);
+  }, []);
 
   /* -------------------------------------------------------
      SEARCH
@@ -143,65 +193,45 @@ function Home() {
 
 
   /* -------------------------------------------------------
-     PLAYER
+     GLOBAL PLAYER
   ------------------------------------------------------- */
 
-  const [currentSong, setCurrentSong] =
-    useState(null);
-
-  const [queue, setQueue] =
-    useState([]);
-
-  const [currentIndex, setCurrentIndex] =
-    useState(-1);
-
-  const [isPlaying, setIsPlaying] =
-    useState(false);
-
-  const [volume, setVolume] =
-    useState(1);
-
-  const [player, setPlayer] =
-    useState(null);
-
-  const [currentTime, setCurrentTime] =
-    useState(0);
-
-  const [duration, setDuration] =
-    useState(0);
-
-  const progressIntervalRef =
-    useRef(null);
+  const { playSong } = usePlayer();
 
 
   /* =========================================================
      LOAD RECENT SONGS
   ========================================================= */
 
-  useEffect(() => {
+  const loadHistory = async () => {
+    const token = getToken();
+
+    if (!token) {
+      setRecentSongs([]);
+      return;
+    }
+
     try {
-      const stored =
-        localStorage.getItem("recentSongs");
+      const response = await getHistory();
 
-      if (!stored) return;
-
-      const parsed =
-        JSON.parse(stored);
-
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(response)) {
         setRecentSongs(
-          parsed
+          response
             .map(normalizeSong)
             .filter((song) => song?.videoId)
         );
+      } else {
+        setRecentSongs([]);
       }
     } catch (error) {
       console.error(
-        "Failed to load recent songs:",
+        "Failed to load listening history:",
         error
       );
+
+      setRecentSongs([]);
     }
-  }, []);
+  };
 
 
   /* =========================================================
@@ -282,6 +312,7 @@ function Home() {
       );
 
       setPlaylists([]);
+
     } finally {
       setPlaylistLoading(false);
     }
@@ -293,6 +324,7 @@ function Home() {
   ========================================================= */
 
   useEffect(() => {
+    loadHistory();
     loadLikedSongs();
     loadPlaylists();
   }, []);
@@ -368,12 +400,14 @@ function Home() {
         setSearchError(
           "YouTube request was rejected."
         );
+
       } else if (
         error.response?.status === 500
       ) {
         setSearchError(
           "Music service is currently unavailable."
         );
+
       } else {
         setSearchError(
           "Unable to search songs."
@@ -398,39 +432,10 @@ function Home() {
 
 
   /* =========================================================
-     SAVE RECENT
-  ========================================================= */
-
-  const saveRecentSong = (song) => {
-
-    const normalized =
-      normalizeSong(song);
-
-    if (!normalized?.videoId) {
-      return;
-    }
-
-    const updated = [
-      normalized,
-
-      ...recentSongs.filter(
-        (item) =>
-          item.videoId !==
-          normalized.videoId
-      ),
-    ].slice(0, 10);
-
-    setRecentSongs(updated);
-
-    localStorage.setItem(
-      "recentSongs",
-      JSON.stringify(updated)
-    );
-  };
-
-
-  /* =========================================================
      PLAY SONG
+     IMPORTANT:
+     Player state is handled by PlayerContext.
+     Home no longer owns the music player.
   ========================================================= */
 
   const handlePlaySong = (
@@ -448,18 +453,20 @@ function Home() {
 
     const activeQueue =
       Array.isArray(customQueue) &&
-      customQueue.length
+      customQueue.length > 0
         ? customQueue
             .map(normalizeSong)
-            .filter(Boolean)
+            .filter(
+              (item) => item?.videoId
+            )
         : songs;
 
-    let index =
-      customIndex;
+    let index = customIndex;
 
     if (
       index === null ||
-      index === undefined
+      index === undefined ||
+      index < 0
     ) {
       index =
         activeQueue.findIndex(
@@ -469,16 +476,36 @@ function Home() {
         );
     }
 
-    setQueue(activeQueue);
-    setCurrentIndex(index);
-    setCurrentSong(normalized);
+    if (index < 0) {
+      index = 0;
+    }
 
-    setCurrentTime(0);
-    setDuration(0);
+    /*
+     * Send playback to the global player.
+     * This is what keeps the song playing
+     * while navigating between pages.
+     */
+    playSong(
+      normalized,
+      activeQueue,
+      index
+    );
 
-    setIsPlaying(true);
-
-    saveRecentSong(normalized);
+    /*
+     * Update Home's recently played section
+     * immediately without using localStorage.
+     *
+     * The actual persistent history is handled
+     * by PlayerContext + backend.
+     */
+    setRecentSongs((previous) => [
+      normalized,
+      ...previous.filter(
+        (item) =>
+          item.videoId !==
+          normalized.videoId
+      ),
+    ].slice(0, 10));
   };
 
 
@@ -874,6 +901,7 @@ function Home() {
           alert(
             "This song is already in the playlist."
           );
+
         } else if (
           error.response?.status ===
             401 ||
@@ -883,6 +911,7 @@ function Home() {
           alert(
             "Session expired. Please login again."
           );
+
         } else {
           alert(
             "Unable to add this song to the playlist."
@@ -1001,254 +1030,6 @@ function Home() {
 
 
   /* =========================================================
-     NEXT SONG
-  ========================================================= */
-
-  const nextSong = () => {
-
-    if (!queue.length) {
-      return;
-    }
-
-    if (
-      currentIndex >= 0 &&
-      currentIndex <
-        queue.length - 1
-    ) {
-
-      const nextIndex =
-        currentIndex + 1;
-
-      handlePlaySong(
-        queue[nextIndex],
-        queue,
-        nextIndex
-      );
-    }
-  };
-
-
-  /* =========================================================
-     PREVIOUS SONG
-  ========================================================= */
-
-  const previousSong = () => {
-
-    if (!queue.length) {
-      return;
-    }
-
-    if (currentIndex > 0) {
-
-      const previousIndex =
-        currentIndex - 1;
-
-      handlePlaySong(
-        queue[previousIndex],
-        queue,
-        previousIndex
-      );
-    }
-  };
-
-
-  /* =========================================================
-     PLAYER READY
-  ========================================================= */
-
-  const handlePlayerReady =
-    (youtubePlayer) => {
-
-      setPlayer(youtubePlayer);
-
-      try {
-
-        youtubePlayer.setVolume(
-          Number(volume) * 100
-        );
-
-        if (isPlaying) {
-          youtubePlayer.playVideo();
-        }
-
-      } catch (error) {
-        console.error(
-          "Player ready error:",
-          error
-        );
-      }
-    };
-
-
-  /* =========================================================
-     PLAYER PROGRESS
-  ========================================================= */
-
-  useEffect(() => {
-
-    if (
-      !player ||
-      !currentSong
-    ) {
-      return;
-    }
-
-    if (
-      progressIntervalRef.current
-    ) {
-      clearInterval(
-        progressIntervalRef.current
-      );
-    }
-
-    progressIntervalRef.current =
-      setInterval(() => {
-
-        try {
-
-          setCurrentTime(
-            player.getCurrentTime() ||
-              0
-          );
-
-          setDuration(
-            player.getDuration() ||
-              0
-          );
-
-        } catch {
-          // player not ready
-        }
-
-      }, 250);
-
-    return () => {
-
-      if (
-        progressIntervalRef.current
-      ) {
-        clearInterval(
-          progressIntervalRef.current
-        );
-
-        progressIntervalRef.current =
-          null;
-      }
-    };
-
-  }, [player, currentSong]);
-
-
-  /* =========================================================
-     VOLUME
-  ========================================================= */
-
-  useEffect(() => {
-
-    if (!player) return;
-
-    try {
-
-      player.setVolume(
-        Number(volume) * 100
-      );
-
-    } catch {
-      // ignore
-    }
-
-  }, [volume, player]);
-
-
-  /* =========================================================
-     PLAY / PAUSE
-  ========================================================= */
-
-  const togglePlayPause = () => {
-
-    if (!player) return;
-
-    try {
-
-      if (isPlaying) {
-
-        player.pauseVideo();
-        setIsPlaying(false);
-
-      } else {
-
-        player.playVideo();
-        setIsPlaying(true);
-      }
-
-    } catch (error) {
-
-      console.error(
-        "Play pause error:",
-        error
-      );
-    }
-  };
-
-
-  /* =========================================================
-     SEEK
-  ========================================================= */
-
-  const seekTo = (time) => {
-
-    if (!player) return;
-
-    const value =
-      Number(time);
-
-    if (Number.isNaN(value)) {
-      return;
-    }
-
-    try {
-
-      player.seekTo(
-        value,
-        true
-      );
-
-      setCurrentTime(value);
-
-    } catch {
-      // ignore
-    }
-  };
-
-
-  /* =========================================================
-     FORMAT TIME
-  ========================================================= */
-
-  const formatTime = (time) => {
-
-    const seconds =
-      Math.floor(
-        Number(time) || 0
-      );
-
-    const minutes =
-      Math.floor(
-        seconds / 60
-      );
-
-    const remaining =
-      seconds % 60;
-
-    return (
-      `${minutes}:${String(
-        remaining
-      ).padStart(2, "0")}`
-    );
-  };
-
-
-  /* =========================================================
      GREETING
   ========================================================= */
 
@@ -1280,15 +1061,15 @@ function Home() {
           SIDEBAR
       ===================================================== */}
 
-     <Sidebar
-  onCreatePlaylist={() => {
-    setSelectedSong(null);
-    setShowCreatePlaylist(true);
-    setNewPlaylistName("");
-    setNewPlaylistDescription("");
-    setShowPlaylistModal(true);
-  }}
-/>
+      <Sidebar
+        onCreatePlaylist={() => {
+          setSelectedSong(null);
+          setShowCreatePlaylist(true);
+          setNewPlaylistName("");
+          setNewPlaylistDescription("");
+          setShowPlaylistModal(true);
+        }}
+      />
 
 
       {/* =====================================================
@@ -1308,7 +1089,7 @@ function Home() {
             </span>
 
             <h1>
-              {getGreeting()} 👋
+              {getGreeting()}👋
             </h1>
 
             <p>
@@ -1326,20 +1107,46 @@ function Home() {
               <FaBell />
             </button>
 
-            <div className="user-chip">
-              <div className="user-avatar">
-                <FaMusic />
-              </div>
+            <div className="user-menu-container" ref={userMenuRef}>
+              <button
+                type="button"
+                className={`user-chip ${showUserMenu ? "user-chip-active" : ""}`}
+                onClick={() => setShowUserMenu(previous => !previous)}
+                aria-expanded={showUserMenu}
+                aria-label="Open account menu"
+              >
+                <div className="user-avatar">
+                  {currentUserName.charAt(0).toUpperCase()}
+                </div>
 
-              <div>
-                <strong>
-                  TuneFlow User
-                </strong>
+                <div className="user-chip-details">
+                  <strong>{currentUserName}</strong>
+                  <span>Music lover</span>
+                </div>
 
-                <span>
-                  Music lover
-                </span>
-              </div>
+                <FaChevronDown className={`user-chevron ${showUserMenu ? "user-chevron-open" : ""}`} />
+              </button>
+
+              {showUserMenu && (
+                <div className="user-dropdown">
+                  <div className="user-dropdown-header">
+                    <div className="dropdown-avatar">
+                      {currentUserName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="dropdown-user-info">
+                      <strong>{currentUserName}</strong>
+                      <span>Signed in to TuneFlow</span>
+                    </div>
+                  </div>
+
+                  <div className="dropdown-divider" />
+
+                  <button type="button" className="logout-button" onClick={handleLogout}>
+                    <span className="logout-icon"><FaSignOutAlt /></span>
+                    <span>Logout</span>
+                  </button>
+                </div>
+              )}
             </div>
 
           </div>
@@ -1364,7 +1171,9 @@ function Home() {
               <h2>
                 Discover music
                 <br />
-                <span>that feels like you.</span>
+                <span>
+                  that feels like you.
+                </span>
               </h2>
 
               <p>
@@ -1415,9 +1224,11 @@ function Home() {
               <div className="hero-album">
 
                 <div className="album-disc">
+
                   <div className="album-center">
                     ♪
                   </div>
+
                 </div>
 
                 <div className="album-lines">
@@ -1519,6 +1330,7 @@ function Home() {
         ) : (
 
           <>
+
             {songs.length > 0 && (
 
               <section className="home-section">
@@ -1526,6 +1338,7 @@ function Home() {
                 <div className="section-header">
 
                   <div>
+
                     <span>
                       SEARCH
                     </span>
@@ -1533,6 +1346,7 @@ function Home() {
                     <h2>
                       Search results
                     </h2>
+
                   </div>
 
                   <small>
@@ -1552,6 +1366,7 @@ function Home() {
                 />
 
               </section>
+
             )}
 
 
@@ -1567,6 +1382,7 @@ function Home() {
                   <div className="section-header">
 
                     <div>
+
                       <span>
                         YOUR HISTORY
                       </span>
@@ -1574,6 +1390,7 @@ function Home() {
                       <h2>
                         Recently played
                       </h2>
+
                     </div>
 
                     <small>
@@ -1612,6 +1429,7 @@ function Home() {
                     </div>
 
                     <div>
+
                       <span>
                         DISCOVER
                       </span>
@@ -1625,6 +1443,7 @@ function Home() {
                         artists or albums
                         and start listening.
                       </p>
+
                     </div>
 
                   </div>
@@ -1637,6 +1456,7 @@ function Home() {
                     </div>
 
                     <div>
+
                       <span>
                         YOUR COLLECTION
                       </span>
@@ -1650,6 +1470,7 @@ function Home() {
                         personal playlists
                         while you listen.
                       </p>
+
                     </div>
 
                   </div>
@@ -1686,7 +1507,9 @@ function Home() {
               <div>
 
                 <span>
-                  {selectedSong ? "SAVE TO PLAYLIST" : "YOUR LIBRARY"}
+                  {selectedSong
+                    ? "SAVE TO PLAYLIST"
+                    : "YOUR LIBRARY"}
                 </span>
 
                 <h2>
@@ -1732,6 +1555,7 @@ function Home() {
                 </div>
 
                 <div>
+
                   <strong>
                     Create new playlist
                   </strong>
@@ -1740,6 +1564,7 @@ function Home() {
                     Create a playlist and add
                     this song
                   </span>
+
                 </div>
 
               </button>
@@ -1896,55 +1721,6 @@ function Home() {
 
         </div>
       )}
-
-
-      {/* =====================================================
-          MUSIC PLAYER
-      ===================================================== */}
-
-      <MusicPlayer
-        song={currentSong}
-        isPlaying={isPlaying}
-        togglePlayPause={
-          togglePlayPause
-        }
-        volume={volume}
-        setVolume={setVolume}
-        nextSong={nextSong}
-        previousSong={previousSong}
-        currentTime={currentTime}
-        duration={duration}
-        formatTime={formatTime}
-        seekTo={seekTo}
-      />
-
-
-      {/* =====================================================
-          YOUTUBE PLAYER
-      ===================================================== */}
-
-      <YouTubePlayer
-        videoId={
-          currentSong?.videoId
-        }
-        isPlaying={isPlaying}
-        volume={volume}
-        onReady={
-          handlePlayerReady
-        }
-        onEnd={() => {
-          if (
-            currentIndex >= 0 &&
-            currentIndex <
-              queue.length - 1
-          ) {
-            nextSong();
-          } else {
-            setIsPlaying(false);
-          }
-        }}
-        seekTo={seekTo}
-      />
 
     </div>
   );

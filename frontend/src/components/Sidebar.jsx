@@ -1,5 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import axios from "axios";
 
 import {
@@ -10,20 +18,28 @@ import {
   FaPlus,
   FaBars,
   FaChevronLeft,
+  FaHistory,
 } from "react-icons/fa";
 
 import "./Sidebar.css";
 
-const API_URL = "http://localhost:8080/api/playlists";
+const API_URL =
+  "http://localhost:8080/api/playlists";
 
-const Sidebar = () => {
+const Sidebar = ({
+  onCreatePlaylist,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [collapsed, setCollapsed] = useState(false);
-  const [playlists, setPlaylists] = useState([]);
+  const [collapsed, setCollapsed] =
+    useState(false);
 
-  const token = localStorage.getItem("token");
+  const [playlists, setPlaylists] =
+    useState([]);
+
+  const token =
+    localStorage.getItem("token");
 
   /* =========================================
      LOAD PLAYLISTS
@@ -31,18 +47,34 @@ const Sidebar = () => {
 
   useEffect(() => {
     const loadPlaylists = async () => {
-      if (!token) return;
+      if (!token) {
+        setPlaylists([]);
+        return;
+      }
 
       try {
-        const response = await axios.get(API_URL, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          API_URL,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
-        setPlaylists(response.data || []);
+        setPlaylists(
+          Array.isArray(response.data)
+            ? response.data
+            : []
+        );
       } catch (error) {
-        console.error("Failed to load playlists:", error);
+        console.error(
+          "Failed to load playlists:",
+          error
+        );
+
+        setPlaylists([]);
       }
     };
 
@@ -57,9 +89,42 @@ const Sidebar = () => {
     navigate("/");
   };
 
+  // IMPORTANT:
+  // Sidebar Search only navigates to Search page.
+  // It does NOT call the YouTube API.
   const goSearch = () => {
+  if (location.pathname !== "/") {
     navigate("/");
-  };
+    
+    setTimeout(() => {
+      const searchInput = document.querySelector(
+        ".premium-search-input"
+      );
+
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 150);
+
+    return;
+  }
+
+  const searchInput = document.querySelector(
+    ".premium-search-input"
+  );
+
+  if (searchInput) {
+    searchInput.focus();
+    searchInput.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }
+};
 
   const goLibrary = () => {
     navigate("/playlists");
@@ -69,18 +134,41 @@ const Sidebar = () => {
     navigate("/liked-songs");
   };
 
+  const goHistory = () => {
+    navigate("/history");
+  };
+
+  /* =========================================
+     CREATE PLAYLIST
+  ========================================= */
+
   const createPlaylist = () => {
+    if (onCreatePlaylist) {
+      onCreatePlaylist();
+      return;
+    }
+
     navigate("/playlists?create=true");
   };
+
+  /* =========================================
+     OPEN PLAYLIST
+  ========================================= */
 
   const openPlaylist = (id) => {
     navigate(`/playlists/${id}`);
   };
 
+  /* =========================================
+     RENDER
+  ========================================= */
+
   return (
     <aside
       className={`sidebar ${
-        collapsed ? "sidebar-collapsed" : ""
+        collapsed
+          ? "sidebar-collapsed"
+          : ""
       }`}
     >
 
@@ -92,8 +180,16 @@ const Sidebar = () => {
 
         <button
           className="sidebar-toggle"
-          onClick={() => setCollapsed(!collapsed)}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          onClick={() =>
+            setCollapsed(
+              !collapsed
+            )
+          }
+          title={
+            collapsed
+              ? "Expand sidebar"
+              : "Collapse sidebar"
+          }
         >
           {collapsed ? (
             <FaBars />
@@ -104,22 +200,27 @@ const Sidebar = () => {
 
         {!collapsed && (
           <div className="sidebar-brand">
-            <span className="brand-icon">🎵</span>
+
+            <span className="brand-icon">
+              🎵
+            </span>
 
             <span className="brand-text">
               TuneFlow AI
             </span>
+
           </div>
         )}
 
       </div>
-
 
       {/* =====================================
           NAVIGATION
       ===================================== */}
 
       <nav className="sidebar-menu">
+
+        {/* HOME */}
 
         <button
           className={`sidebar-item ${
@@ -138,8 +239,14 @@ const Sidebar = () => {
         </button>
 
 
+        {/* SEARCH */}
+
         <button
-          className="sidebar-item"
+          className={`sidebar-item ${
+            location.pathname === "/"
+              ? "active"
+              : ""
+          }`}
           onClick={goSearch}
           title="Search"
         >
@@ -150,6 +257,8 @@ const Sidebar = () => {
           </span>
         </button>
 
+
+        {/* YOUR LIBRARY */}
 
         <button
           className={`sidebar-item ${
@@ -170,6 +279,8 @@ const Sidebar = () => {
         </button>
 
 
+        {/* LIKED SONGS */}
+
         <button
           className={`sidebar-item ${
             location.pathname ===
@@ -187,6 +298,28 @@ const Sidebar = () => {
           </span>
         </button>
 
+
+        {/* HISTORY */}
+
+        <button
+          className={`sidebar-item ${
+            location.pathname ===
+            "/history"
+              ? "active"
+              : ""
+          }`}
+          onClick={goHistory}
+          title="Listening History"
+        >
+          <FaHistory />
+
+          <span className="sidebar-label">
+            History
+          </span>
+        </button>
+
+
+        {/* CREATE PLAYLIST */}
 
         <button
           className="sidebar-item"
@@ -214,35 +347,55 @@ const Sidebar = () => {
             PLAYLISTS
           </div>
 
-          {playlists.length === 0 ? (
-            <div className="no-playlists">
-              <FaMusic />
-              <span>No playlists yet</span>
-            </div>
-          ) : (
-            playlists.map((playlist) => (
-              <button
-                key={playlist.id}
-                className={`sidebar-playlist ${
-                  location.pathname ===
-                  `/playlists/${playlist.id}`
-                    ? "active"
-                    : ""
-                }`}
-                onClick={() =>
-                  openPlaylist(playlist.id)
-                }
-                title={playlist.name}
-              >
-                <span className="playlist-mini-icon">
-                  🎵
-                </span>
 
-                <span className="playlist-title">
-                  {playlist.name}
-                </span>
-              </button>
-            ))
+          {playlists.length === 0 ? (
+
+            <div className="no-playlists">
+
+              <FaMusic />
+
+              <span>
+                No playlists yet
+              </span>
+
+            </div>
+
+          ) : (
+
+            playlists.map(
+              (playlist) => (
+
+                <button
+                  key={playlist.id}
+                  className={`sidebar-playlist ${
+                    location.pathname ===
+                    `/playlists/${playlist.id}`
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    openPlaylist(
+                      playlist.id
+                    )
+                  }
+                  title={
+                    playlist.name
+                  }
+                >
+
+                  <span className="playlist-mini-icon">
+                    🎵
+                  </span>
+
+                  <span className="playlist-title">
+                    {playlist.name}
+                  </span>
+
+                </button>
+
+              )
+            )
+
           )}
 
         </div>

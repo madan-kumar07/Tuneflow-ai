@@ -1,0 +1,252 @@
+[1mdiff --git a/frontend/src/components/Sidebar.jsx b/frontend/src/components/Sidebar.jsx[m
+[1mindex 2e963c3..028556c 100644[m
+[1m--- a/frontend/src/components/Sidebar.jsx[m
+[1m+++ b/frontend/src/components/Sidebar.jsx[m
+[36m@@ -1,5 +1,13 @@[m
+[31m-import React, { useEffect, useState } from "react";[m
+[31m-import { useLocation, useNavigate } from "react-router-dom";[m
+[32m+[m[32mimport React, {[m
+[32m+[m[32m  useEffect,[m
+[32m+[m[32m  useState,[m
+[32m+[m[32m} from "react";[m
+[32m+[m
+[32m+[m[32mimport {[m
+[32m+[m[32m  useLocation,[m
+[32m+[m[32m  useNavigate,[m
+[32m+[m[32m} from "react-router-dom";[m
+[32m+[m
+ import axios from "axios";[m
+ [m
+ import {[m
+[36m@@ -10,20 +18,28 @@[m [mimport {[m
+   FaPlus,[m
+   FaBars,[m
+   FaChevronLeft,[m
+[32m+[m[32m  FaHistory,[m
+ } from "react-icons/fa";[m
+ [m
+ import "./Sidebar.css";[m
+ [m
+[31m-const API_URL = "http://localhost:8080/api/playlists";[m
+[32m+[m[32mconst API_URL =[m
+[32m+[m[32m  "http://localhost:8080/api/playlists";[m
+ [m
+[31m-const Sidebar = () => {[m
+[32m+[m[32mconst Sidebar = ({[m
+[32m+[m[32m  onCreatePlaylist,[m
+[32m+[m[32m}) => {[m
+   const navigate = useNavigate();[m
+   const location = useLocation();[m
+ [m
+[31m-  const [collapsed, setCollapsed] = useState(false);[m
+[31m-  const [playlists, setPlaylists] = useState([]);[m
+[32m+[m[32m  const [collapsed, setCollapsed] =[m
+[32m+[m[32m    useState(false);[m
+ [m
+[31m-  const token = localStorage.getItem("token");[m
+[32m+[m[32m  const [playlists, setPlaylists] =[m
+[32m+[m[32m    useState([]);[m
+[32m+[m
+[32m+[m[32m  const token =[m
+[32m+[m[32m    localStorage.getItem("token");[m
+ [m
+   /* =========================================[m
+      LOAD PLAYLISTS[m
+[36m@@ -31,18 +47,34 @@[m [mconst Sidebar = () => {[m
+ [m
+   useEffect(() => {[m
+     const loadPlaylists = async () => {[m
+[31m-      if (!token) return;[m
+[32m+[m[32m      if (!token) {[m
+[32m+[m[32m        setPlaylists([]);[m
+[32m+[m[32m        return;[m
+[32m+[m[32m      }[m
+ [m
+       try {[m
+[31m-        const response = await axios.get(API_URL, {[m
+[31m-          headers: {[m
+[31m-            Authorization: `Bearer ${token}`,[m
+[31m-          },[m
+[31m-        });[m
+[31m-[m
+[31m-        setPlaylists(response.data || []);[m
+[32m+[m[32m        const response = await axios.get([m
+[32m+[m[32m          API_URL,[m
+[32m+[m[32m          {[m
+[32m+[m[32m            headers: {[m
+[32m+[m[32m              Authorization:[m
+[32m+[m[32m                `Bearer ${token}`,[m
+[32m+[m[32m            },[m
+[32m+[m[32m          }[m
+[32m+[m[32m        );[m
+[32m+[m
+[32m+[m[32m        setPlaylists([m
+[32m+[m[32m          Array.isArray(response.data)[m
+[32m+[m[32m            ? response.data[m
+[32m+[m[32m            : [][m
+[32m+[m[32m        );[m
+       } catch (error) {[m
+[31m-        console.error("Failed to load playlists:", error);[m
+[32m+[m[32m        console.error([m
+[32m+[m[32m          "Failed to load playlists:",[m
+[32m+[m[32m          error[m
+[32m+[m[32m        );[m
+[32m+[m
+[32m+[m[32m        setPlaylists([]);[m
+       }[m
+     };[m
+ [m
+[36m@@ -57,9 +89,42 @@[m [mconst Sidebar = () => {[m
+     navigate("/");[m
+   };[m
+ [m
+[32m+[m[32m  // IMPORTANT:[m
+[32m+[m[32m  // Sidebar Search only navigates to Search page.[m
+[32m+[m[32m  // It does NOT call the YouTube API.[m
+   const goSearch = () => {[m
+[32m+[m[32m  if (location.pathname !== "/") {[m
+     navigate("/");[m
+[31m-  };[m
+[32m+[m[41m    [m
+[32m+[m[32m    setTimeout(() => {[m
+[32m+[m[32m      const searchInput = document.querySelector([m
+[32m+[m[32m        ".premium-search-input"[m
+[32m+[m[32m      );[m
+[32m+[m
+[32m+[m[32m      if (searchInput) {[m
+[32m+[m[32m        searchInput.focus();[m
+[32m+[m[32m        searchInput.scrollIntoView({[m
+[32m+[m[32m          behavior: "smooth",[m
+[32m+[m[32m          block: "center",[m
+[32m+[m[32m        });[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }, 150);[m
+[32m+[m
+[32m+[m[32m    return;[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  const searchInput = document.querySelector([m
+[32m+[m[32m    ".premium-search-input"[m
+[32m+[m[32m  );[m
+[32m+[m
+[32m+[m[32m  if (searchInput) {[m
+[32m+[m[32m    searchInput.focus();[m
+[32m+[m[32m    searchInput.scrollIntoView({[m
+[32m+[m[32m      behavior: "smooth",[m
+[32m+[m[32m      block: "center",[m
+[32m+[m[32m    });[m
+[32m+[m[32m  }[m
+[32m+[m[32m};[m
+ [m
+   const goLibrary = () => {[m
+     navigate("/playlists");[m
+[36m@@ -69,18 +134,41 @@[m [mconst Sidebar = () => {[m
+     navigate("/liked-songs");[m
+   };[m
+ [m
+[32m+[m[32m  const goHistory = () => {[m
+[32m+[m[32m    navigate("/history");[m
+[32m+[m[32m  };[m
+[32m+[m
+[32m+[m[32m  /* =========================================[m
+[32m+[m[32m     CREATE PLAYLIST[m
+[32m+[m[32m  ========================================= */[m
+[32m+[m
+   const createPlaylist = () => {[m
+[32m+[m[32m    if (onCreatePlaylist) {[m
+[32m+[m[32m      onCreatePlaylist();[m
+[32m+[m[32m      return;[m
+[32m+[m[32m    }[m
+[32m+[m
+     navigate("/playlists?create=true");[m
+   };[m
+ [m
+[32m+[m[32m  /* =========================================[m
+[32m+[m[32m     OPEN PLAYLIST[m
+[32m+[m[32m  ========================================= */[m
+[32m+[m
+   const openPlaylist = (id) => {[m
+     navigate(`/playlists/${id}`);[m
+   };[m
+ [m
+[32m+[m[32m  /* =========================================[m
+[32m+[m[32m     RENDER[m
+[32m+[m[32m  ========================================= */[m
+[32m+[m
+   return ([m
+     <aside[m
+       className={`sidebar ${[m
+[31m-        collapsed ? "sidebar-collapsed" : ""[m
+[32m+[m[32m        collapsed[m
+[32m+[m[32m          ? "sidebar-collapsed"[m
+[32m+[m[32m          : ""[m
+       }`}[m
+     >[m
+ [m
+[36m@@ -92,8 +180,16 @@[m [mconst Sidebar = () => {[m
+ [m
+         <button[m
+           className="sidebar-toggle"[m
+[31m-          onClick={() => setCollapsed(!collapsed)}[m
+[31m-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}[m
+[32m+[m[32m          onClick={() =>[m
+[32m+[m[32m            setCollapsed([m
+[32m+[m[32m              !collapsed[m
+[32m+[m[32m            )[m
+[32m+[m[32m          }[m
+[32m+[m[32m          title={[m
+[32m+[m[32m            collapsed[m
+[32m+[m[32m              ? "Expand sidebar"[m
+[32m+[m[32m              : "Collapse sidebar"[m
+[32m+[m[32m          }[m
+         >[m
+           {collapsed ? ([m
+             <FaBars />[m
+[36m@@ -104,23 +200,28 @@[m [mconst Sidebar = () => {[m
+ [m
+         {!collapsed && ([m
+           <div className="sidebar-brand">[m
+[31m-            <span className="brand-icon">🎵</span>[m
+[32m+[m
+[32m+[m[32m            <span className="brand-icon">[m
+[32m+[m[32m              🎵[m
+[32m+[m[32m            </span>[m
+ [m
+             <span className="brand-text">[m
+               TuneFlow AI[m
+             </span>[m
+[32m+[m
+           </div>[m
+         )}[m
+ [m
+       </div>[m
+ [m
+[31m-[m
+       {/* =====================================[m
+           NAVIGATION[m
+       ===================================== */}[m
+ [m
+       <nav className="sidebar-menu">[m
+ [m
+[32m+[m[32m        {/* HOME */}[m
+[32m+[m
+         <button[m
+           className={`sidebar-item ${[m
+             location.pathname === "/"[m
+[36m@@ -138,8 +239,14 @@[m [mconst Sidebar = () => {[m
+         </button>[m
+ [m
+ [m
+[32m+[m[32m        {/* SEARCH */}[m
+[32m+[m
+         <button[m
+[31m-          className="sidebar-item"[m
+[32m+[m[32m          className={`sidebar-item ${[m
+[32m+[m[32m            location.pathname === "/"[m
+[32m+[m[32m              ? "active"[m
+[32m+[m[32m              : ""[m
+[32m+[m[32m          }`}[m
+           onClick={goSearch}[m
+           title="Search"[m
+         >[m
+[36m@@ -151,6 +258,

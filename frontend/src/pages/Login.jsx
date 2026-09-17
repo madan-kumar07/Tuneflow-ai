@@ -16,12 +16,15 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -34,11 +37,20 @@ const Login = () => {
       const data = await loginUser(formData);
 
       login(data);
-      toast.success("Welcome Back 🎵");
+
+      toast.success("Welcome back 🎵");
+
       navigate("/");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid Email or Password");
-      toast.error("Invalid Email or Password");
+      console.error("Login error:", err);
+
+      const message =
+        err.response?.data?.message ||
+        "Invalid email or password";
+
+      setError(message);
+
+      toast.error("Login failed");
     } finally {
       setLoading(false);
     }
@@ -46,72 +58,291 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      <div className="login-card">
 
-        <div className="logo">🎵</div>
+      <div className="login-layout">
 
-        <h1>Welcome Back</h1>
+        {/* ================= LEFT ================= */}
 
-        <p className="subtitle">
-          Login to continue your music journey
-        </p>
+        <section className="login-left">
 
-        {error && (
-          <div className="error">
-            {error}
-          </div>
-        )}
+          <div className="login-brand">
 
-        <form onSubmit={handleSubmit}>
+            <div className="login-logo">
+              ♫
+            </div>
 
-          <div className="input-group">
-            <label>Email</label>
+            <div>
+              TuneFlow <span>AI</span>
+            </div>
 
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
           </div>
 
-          <div className="input-group">
-            <label>Password</label>
 
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+          <div className="login-left-content">
+
+            <span className="login-label">
+              YOUR MUSIC AWAITS
+            </span>
+
+            <h2>
+              Welcome
+              <br />
+              <span>back.</span>
+            </h2>
+
+            <p>
+              Continue listening to your favorite songs,
+              playlists and discoveries right where you
+              left off.
+            </p>
+
+
+            <div className="login-feature">
+
+              <div className="login-feature-icon">
+                ♪
+              </div>
+
+              <div>
+                <strong>
+                  Your music, your flow
+                </strong>
+
+                <small>
+                  Everything you love in one place
+                </small>
+              </div>
+
+            </div>
+
           </div>
 
-          <button
-            className="login-btn"
-            type="submit"
-            disabled={loading}
+
+          <div className="login-art">
+
+            <div className="login-disc">
+              <div></div>
+            </div>
+
+            <span className="login-note note-one">
+              ♪
+            </span>
+
+            <span className="login-note note-two">
+              ♫
+            </span>
+
+          </div>
+
+
+          <div className="login-footer">
+            <span>LISTEN</span>
+            <span>DISCOVER</span>
+            <span>REPEAT</span>
+          </div>
+
+        </section>
+
+
+        {/* ================= RIGHT ================= */}
+
+        <section className="login-right">
+
+          <div className="register-link">
+
+            New to TuneFlow?
+
+            <Link to="/register">
+              Create account →
+            </Link>
+
+          </div>
+
+
+          <div className="login-heading">
+
+            <span>
+              WELCOME BACK
+            </span>
+
+            <h1>
+              Sign in to TuneFlow
+            </h1>
+
+            <p>
+              Get back into your music flow.
+            </p>
+
+          </div>
+
+
+          {error && (
+            <div className="login-error">
+
+              <b>!</b>
+
+              <span>
+                {error}
+              </span>
+
+            </div>
+          )}
+
+
+          <form
+            className="login-form"
+            onSubmit={handleSubmit}
           >
-            {loading ? "Signing In..." : "Login"}
-          </button>
 
-        </form>
+            {/* Email */}
 
-        <div className="divider">
-          <span>OR</span>
-        </div>
+            <div className="login-field">
 
-        <p className="bottom-text">
-          Don't have an account?{" "}
-          <Link to="/register">
-            Register
-          </Link>
-        </p>
+              <label htmlFor="login-email">
+                Email address
+              </label>
+
+              <div className="login-input">
+
+                <span>
+                  @
+                </span>
+
+                <input
+                  id="login-email"
+                  type="email"
+                  name="email"
+                  placeholder="you@example.com"
+                  value={formData.email}
+                  onChange={handleChange}
+                  autoComplete="email"
+                  required
+                  disabled={loading}
+                />
+
+              </div>
+
+            </div>
+
+
+            {/* Password */}
+
+            <div className="login-field">
+
+              <div className="login-password-title">
+
+                <label htmlFor="login-password">
+                  Password
+                </label>
+
+                <Link to="/register">
+                  Need help?
+                </Link>
+
+              </div>
+
+
+              <div className="login-input">
+
+                <span>
+                  •
+                </span>
+
+                <input
+                  id="login-password"
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  autoComplete="current-password"
+                  required
+                  disabled={loading}
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(!showPassword)
+                  }
+                >
+                  {showPassword
+                    ? "Hide"
+                    : "Show"}
+                </button>
+
+              </div>
+
+            </div>
+
+
+            <button
+              type="submit"
+              className="login-button"
+              disabled={loading}
+            >
+
+              <span>
+                {loading
+                  ? "Signing in..."
+                  : "Sign in"}
+              </span>
+
+              <b>
+                →
+              </b>
+
+            </button>
+
+          </form>
+
+
+          <div className="login-divider">
+            <span></span>
+            YOUR MUSIC • YOUR FLOW
+            <span></span>
+          </div>
+
+
+          <div className="login-info">
+
+            <div className="login-info-icon">
+              ♪
+            </div>
+
+            <div>
+
+              <strong>
+                Ready to listen?
+              </strong>
+
+              <small>
+                Sign in to access your TuneFlow library.
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <p className="create-account-text">
+
+            Don't have an account?{" "}
+
+            <Link to="/register">
+              Create one
+            </Link>
+
+          </p>
+
+        </section>
 
       </div>
+
     </div>
   );
 };

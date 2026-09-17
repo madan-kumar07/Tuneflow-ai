@@ -7,6 +7,7 @@ import {
 } from "react";
 
 import YouTubePlayer from "../components/YouTubePlayer";
+import { addToHistory } from "../service/historyService";
 
 const PlayerContext = createContext(null);
 
@@ -121,6 +122,13 @@ export const PlayerProvider = ({ children }) => {
         "Failed to save recent song:",
         error
       );
+    }
+
+    /* Save to backend history */
+    if (localStorage.getItem("token")) {
+      addToHistory(normalized).catch((err) => {
+        console.error("Failed to add song to backend history:", err);
+      });
     }
   };
 

@@ -1684,3 +1684,53 @@
     border-radius: 18px;
   }
 }
+
+/* =========================================================
+   USER ACCOUNT MENU
+========================================================= */
+.user-menu-container { position: relative; }
+.user-chip { appearance: none; font-family: inherit; cursor: pointer; position: relative; text-align: left; }
+.user-chip:hover { background: #191919; border-color: #353535; }
+.user-chip-active { background: #191919; border-color: rgba(139,92,246,.42); }
+.user-chip-details { min-width: 0; }
+.user-chip-details strong { max-width: 135px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-chevron { margin-left: 4px; color: #777; font-size: 10px; transition: transform .2s ease, color .2s ease; }
+.user-chevron-open { transform: rotate(180deg); color: #a78bfa; }
+.user-dropdown { position: absolute; top: calc(100% + 10px); right: 0; width: 245px; padding: 10px; z-index: 9999; border: 1px solid rgba(255,255,255,.09); border-radius: 16px; background: linear-gradient(145deg,rgba(28,26,39,.98),rgba(14,14,21,.98)); box-shadow: 0 20px 55px rgba(0,0,0,.55),0 0 30px rgba(105,72,190,.08); backdrop-filter: blur(20px); animation: userDropdownIn .16s ease-out; }
+@keyframes userDropdownIn { from { opacity:0; transform:translateY(-5px) scale(.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+.user-dropdown-header { display:flex; align-items:center; gap:11px; padding:8px 8px 11px; }
+.dropdown-avatar { width:38px; height:38px; flex-shrink:0; display:flex; align-items:center; justify-content:center; border-radius:12px; color:white; font-size:14px; font-weight:700; background:linear-gradient(135deg,#8b5cf6,#5b4de8); box-shadow:0 8px 20px rgba(100,70,240,.25); }
+.dropdown-user-info { min-width:0; }
+.dropdown-user-info strong { display:block; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#f2eff8; font-size:12px; font-weight:700; }
+.dropdown-user-info span { display:block; margin-top:3px; color:#686674; font-size:9px; }
+.dropdown-divider { height:1px; margin:2px 5px 8px; background:rgba(255,255,255,.07); }
+.logout-button { width:100%; display:flex; align-items:center; gap:10px; padding:10px; border:none; border-radius:10px; background:transparent; color:#b7b4c0; font-family:inherit; font-size:11px; font-weight:600; text-align:left; cursor:pointer; transition:background .18s ease,color .18s ease; }
+.logout-button:hover { background:rgba(239,68,68,.08); color:#ff8f9c; }
+.logout-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px; color:#a78bfa; background:rgba(139,92,246,.1); transition:.18s ease; }
+.logout-button:hover .logout-icon { color:#ff8f9c; background:rgba(239,68,68,.1); }
+@media (max-width:700px) { .user-chip-details { display:none; } .user-chip { padding:5px; gap:0; } .user-chevron { display:none; } .user-dropdown { width:230px; } }
+@media (max-width:520px) { .user-dropdown { position:fixed; top:70px; right:14px; width:min(240px,calc(100vw - 28px)); } }
+/* =========================================================
+   USER NAME FIX
+========================================================= */
+
+.user-chip {
+  color: #ffffff !important;
+}
+
+.user-chip-details strong {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+.user-chip-details span {
+  color: #777777 !important;
+}
+
+.user-avatar {
+  color: #ffffff !important;
+}
+
+.user-chevron {
+  color: #8b8b8b;
+}
