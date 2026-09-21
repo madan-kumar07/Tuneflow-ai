@@ -26,9 +26,13 @@ public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
     private static final String RESEND_API_URL = "https://api.resend.com/emails";
+    private static final String BREVO_API_URL = "https://api.brevo.com/v3/smtp/email";
 
     private final RestTemplate restTemplate;
     private final JavaMailSender mailSender;
+
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
 
     @Value("${resend.api.key:}")
     private String resendApiKey;
@@ -38,6 +42,9 @@ public class EmailService {
 
     @Value("${app.mail.from:onboarding@resend.dev}")
     private String fromEmail;
+
+    @Value("${resend.from.email:onboarding@resend.dev}")
+    private String resendFromEmail;
 
     public EmailService(RestTemplate restTemplate, ObjectProvider<JavaMailSender> mailSenderProvider) {
         this.restTemplate = restTemplate;
@@ -72,14 +79,14 @@ public class EmailService {
                 "<p style=\"color: #64748b; font-size: 12px;\">Regards,<br/>TuneFlow AI Team</p>" +
                 "</div>";
 
-        // Strategy 1: Try SMTP (Gmail) if configured
-        if (mailSender != null && mailUsername != null && !mailUsername.isBlank()) {
+        // Strategy 1: Try Brevo HTTP REST API (Best for Render free tier, sends from Gmail to any recipient)
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
             try {
-                sendEmailViaSmtp(toEmail, subject, textContent);
-                log.info("OTP email delivered successfully to {} via Gmail SMTP", toEmail);
+                sendEmailViaBrevo(toEmail, subject, textContent, htmlContent);
+                log.info("OTP email delivered successfully to {} via Brevo REST API", toEmail);
                 return true;
             } catch (Exception e) {
-                log.warn("SMTP delivery to {} failed: {}. Falling back to Resend API...", toEmail, e.getMessage());
+                log.warn("Brevo REST API delivery to {} failed: {}. Falling back to next provider...", toEmail, e.getMessage());
             }
         }
 
@@ -91,6 +98,17 @@ public class EmailService {
                 return true;
             } catch (Exception e) {
                 log.warn("Resend API delivery to {} failed: {}. OTP [{}] is saved in session.", toEmail, e.getMessage(), otp);
+            }
+        }
+
+        // Strategy 3: Try SMTP (Gmail)
+        if (mailSender != null && mailUsername != null && !mailUsername.isBlank()) {
+            try {
+                sendEmailViaSmtp(toEmail, subject, textContent);
+                log.info("OTP email delivered successfully to {} via Gmail SMTP", toEmail);
+                return true;
+            } catch (Exception e) {
+                log.warn("SMTP delivery to {} failed: {}.", toEmail, e.getMessage());
             }
         }
 
@@ -125,9 +143,9 @@ public class EmailService {
                 "<p style=\"color: #64748b; font-size: 12px;\">Regards,<br/>TuneFlow AI Team</p>" +
                 "</div>";
 
-        if (mailSender != null && mailUsername != null && !mailUsername.isBlank()) {
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
             try {
-                sendEmailViaSmtp(toEmail, subject, textContent);
+                sendEmailViaBrevo(toEmail, subject, textContent, htmlContent);
                 return;
             } catch (Exception ignored) {}
         }
@@ -135,6 +153,13 @@ public class EmailService {
         if (resendApiKey != null && !resendApiKey.isBlank()) {
             try {
                 sendEmailViaResend(toEmail, subject, textContent, htmlContent);
+                return;
+            } catch (Exception ignored) {}
+        }
+
+        if (mailSender != null && mailUsername != null && !mailUsername.isBlank()) {
+            try {
+                sendEmailViaSmtp(toEmail, subject, textContent);
             } catch (Exception ignored) {}
         }
     }
@@ -150,7 +175,7 @@ public class EmailService {
     }
 
     private void sendEmailViaResend(String toEmail, String subject, String textContent, String htmlContent) {
-        String formattedFrom = fromEmail;
+        String formattedFrom = (resendFromEmail != null && !resendFromEmail.isBlank()) ? resendFromEmail : "onboarding@resend.dev";
         if (!formattedFrom.contains("<") && !formattedFrom.contains(">")) {
             formattedFrom = "TuneFlow AI <" + formattedFrom.trim() + ">";
         }
@@ -176,5 +201,35 @@ public class EmailService {
         );
 
         log.info("Resend API response code: {}", response.getStatusCode());
+    }
+
+    private void sendEmailViaBrevo(String toEmail, String subject, String textContent, String htmlContent) {
+        String senderEmail = (mailUsername != null && !mailUsername.isBlank()) ? mailUsername : "raguvaran0234@gmail.com";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("api-key", brevoApiKey.trim());
+        headers.set("Accept", "application/json");
+
+        Map<String, Object> senderMap = Map.of("name", "TuneFlow AI", "email", senderEmail.trim());
+        Map<String, Object> recipientMap = Map.of("email", toEmail.trim());
+
+        Map<String, Object> body = new HashMap<>();
+        body.put("sender", senderMap);
+        body.put("to", List.of(recipientMap));
+        body.put("subject", subject);
+        body.put("textContent", textContent);
+        body.put("htmlContent", htmlContent);
+
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                BREVO_API_URL,
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+        );
+
+        log.info("Brevo API response code: {}", response.getStatusCode());
     }
 }
