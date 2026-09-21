@@ -1,11 +1,14 @@
 import "./Navbar.css";
 import { FaBell, FaUserCircle } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
+import { usePlayer } from "../context/PlayerContext";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const { stopPlayer } = usePlayer();
 
   const handleLogout = () => {
+    stopPlayer();
     logout();
     window.location.href = "/login";
   };

@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -10,6 +11,7 @@ import History from "./pages/History";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import MusicPlayer from "./components/MusicPlayer";
+import useAuth from "./hooks/useAuth";
 
 import { PlayerProvider, usePlayer } from "./context/PlayerContext";
 
@@ -20,6 +22,8 @@ import "./App.css";
 ================================ */
 
 const GlobalPlayer = () => {
+  const { user } = useAuth();
+  const location = useLocation();
   const {
     currentSong,
     isPlaying,
@@ -31,9 +35,20 @@ const GlobalPlayer = () => {
     currentTime,
     duration,
     seekTo,
+    stopPlayer,
   } = usePlayer();
 
-  if (!currentSong) {
+  const isPublicRoute = ["/login", "/register", "/verify-otp"].includes(
+    location.pathname
+  );
+
+  useEffect(() => {
+    if ((!user || isPublicRoute) && (currentSong || isPlaying)) {
+      stopPlayer();
+    }
+  }, [user, isPublicRoute, currentSong, isPlaying, stopPlayer]);
+
+  if (!user || isPublicRoute || !currentSong) {
     return null;
   }
 

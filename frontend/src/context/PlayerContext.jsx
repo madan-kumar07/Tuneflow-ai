@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -358,6 +359,31 @@ export const PlayerProvider = ({ children }) => {
       .padStart(2, "0")}`;
   };
 
+  /* ==============================
+     STOP PLAYER
+  ============================== */
+
+  const stopPlayer = useCallback(() => {
+    if (playerRef.current) {
+      try {
+        if (typeof playerRef.current.pauseVideo === "function") {
+          playerRef.current.pauseVideo();
+        }
+        if (typeof playerRef.current.stopVideo === "function") {
+          playerRef.current.stopVideo();
+        }
+      } catch (error) {
+        console.error("Stop player error:", error);
+      }
+    }
+    setIsPlaying(false);
+    setCurrentSong(null);
+    setQueue([]);
+    setCurrentIndex(-1);
+    setCurrentTime(0);
+    setDuration(0);
+  }, []);
+
   return (
     <PlayerContext.Provider
       value={{
@@ -377,6 +403,7 @@ export const PlayerProvider = ({ children }) => {
         previousSong,
         togglePlayPause,
         seekTo,
+        stopPlayer,
       }}
     >
       {children}
