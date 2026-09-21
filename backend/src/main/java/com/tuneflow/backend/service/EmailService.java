@@ -1,87 +1,61 @@
 package com.tuneflow.backend.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class EmailService {
 
     private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
-    private final ObjectMapper objectMapper;
-    private final HttpClient httpClient;
+    private final JavaMailSender mailSender;
 
-    @Value("${resend.api.key:}")
-    private String resendApiKey;
-
-    @Value("${app.mail.from:onboarding@resend.dev}")
+    @Value("${app.mail.from:${MAIL_USERNAME:}}")
     private String fromEmail;
 
-    public EmailService(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-        this.httpClient = HttpClient.newHttpClient();
+    public EmailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
     }
 
     private void sendEmail(String toEmail, String subject, String text) {
 
-        if (resendApiKey == null || resendApiKey.isBlank()) {
-            throw new IllegalStateException("RESEND_API_KEY is not configured");
+        if (fromEmail == null || fromEmail.isBlank()) {
+            throw new IllegalStateException(
+                    "MAIL_FROM or MAIL_USERNAME is not configured"
+            );
         }
 
         try {
-            Map<String, Object> body = Map.of(
-                    "from", fromEmail,
-                    "to", List.of(toEmail),
-                    "subject", subject,
-                    "text", text
-            );
+            SimpleMailMessage message = new SimpleMailMessage();
 
-            String json = objectMapper.writeValueAsString(body);
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject(subject);
+            message.setText(text);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.resend.com/emails"))
-                    .header("Authorization", "Bearer " + resendApiKey)
-                    .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(json))
-                    .build();
+            mailSender.send(message);
 
-            HttpResponse<String> response = httpClient.send(
-                    request,
-                    HttpResponse.BodyHandlers.ofString()
-            );
-
-            if (response.statusCode() < 200 || response.statusCode() >= 300) {
-                log.error(
-                        "Resend email failed. status={}, response={}",
-                        response.statusCode(),
-                        response.body()
-                );
-
-                throw new IllegalStateException(
-                        "Email delivery failed with status " + response.statusCode()
-                );
-            }
-
-            log.info("Email sent successfully via Resend to {}", toEmail);
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("Email delivery was interrupted", e);
+            log.info("Email sent successfully via SMTP to {}", toEmail);
 
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to send email via Resend", e);
+            log.error(
+                    "SMTP email failed. to={}, from={}",
+                    toEmail,
+                    fromEmail,
+                    e
+            );
+
+            throw new IllegalStateException(
+                    "Unable to send email via SMTP",
+                    e
+            );
         }
     }
 
