@@ -76,10 +76,12 @@ const VerifyOtp = () => {
         localStorage.setItem("token", data.token);
 
         if (data.email) {
+          localStorage.setItem("email", data.email);
           localStorage.setItem("userEmail", data.email);
         }
 
         if (data.role) {
+          localStorage.setItem("role", data.role);
           localStorage.setItem("userRole", data.role);
         }
       }
@@ -93,16 +95,11 @@ const VerifyOtp = () => {
 
       const message =
         err.response?.data?.message ||
-        err.response?.data ||
+        (typeof err.response?.data === "string" ? err.response.data : null) ||
         "Invalid or expired OTP";
 
-      setError(
-        typeof message === "string"
-          ? message
-          : "Invalid or expired OTP"
-      );
-
-      toast.error("OTP verification failed");
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -127,16 +124,11 @@ const VerifyOtp = () => {
 
       const message =
         err.response?.data?.message ||
-        err.response?.data ||
+        (typeof err.response?.data === "string" ? err.response.data : null) ||
         "Unable to resend OTP";
 
-      setError(
-        typeof message === "string"
-          ? message
-          : "Unable to resend OTP"
-      );
-
-      toast.error("Could not resend OTP");
+      setError(message);
+      toast.error(message);
     } finally {
       setResending(false);
     }

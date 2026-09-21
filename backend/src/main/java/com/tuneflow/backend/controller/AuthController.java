@@ -38,13 +38,17 @@ public class AuthController {
     public ResponseEntity<?> register(
             @Valid @RequestBody RegisterRequest request) {
 
-        authService.register(request);
+        boolean emailSent = authService.register(request);
+
+        String message = emailSent
+                ? "Registration started. OTP sent to your email."
+                : "Registration started. OTP generated (Check email or dev logs).";
 
         return ResponseEntity.ok(
                 Map.of(
                         "success", true,
-                        "message",
-                        "Registration started. OTP sent to your email."
+                        "message", message,
+                        "emailSent", emailSent
                 )
         );
     }
@@ -70,13 +74,17 @@ public class AuthController {
     public ResponseEntity<?> sendOtp(
             @Valid @RequestBody SendOtpRequest request) {
 
-        otpService.sendOtp(request.getEmail());
+        boolean emailSent = otpService.sendOtp(request.getEmail());
+
+        String message = emailSent
+                ? "OTP sent successfully to your email."
+                : "OTP generated (Check email or dev logs).";
 
         return ResponseEntity.ok(
                 Map.of(
                         "success", true,
-                        "message",
-                        "OTP sent successfully to your email."
+                        "message", message,
+                        "emailSent", emailSent
                 )
         );
     }

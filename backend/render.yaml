@@ -17,13 +17,8 @@ services:
         sync: false
       - key: YOUTUBE_API_KEY
         sync: false
-      - key: MAIL_HOST
-        sync: false
-      - key: MAIL_PORT
-        sync: false
-      - key: MAIL_USERNAME
-        sync: false
-      - key: MAIL_PASSWORD
+      - key: RESEND_API_KEY
         sync: false
       - key: MAIL_FROM
         sync: false
+

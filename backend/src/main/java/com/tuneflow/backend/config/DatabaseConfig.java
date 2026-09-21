@@ -29,10 +29,16 @@ public class DatabaseConfig {
             }
         }
 
-        return DataSourceBuilder.create()
-                .url(url)
-                .username(username)
-                .password(password)
-                .build();
+        DataSourceBuilder<?> builder = DataSourceBuilder.create().url(url);
+
+        if (username != null && !username.isBlank()) {
+            builder.username(username);
+        }
+
+        if (password != null && !password.isBlank()) {
+            builder.password(password);
+        }
+
+        return builder.build();
     }
 }

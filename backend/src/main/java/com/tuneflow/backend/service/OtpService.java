@@ -38,7 +38,7 @@ public class OtpService {
      * The user details are temporarily kept in memory.
      * The actual database user is created only after OTP verification.
      */
-    public void startRegistration(RegisterRequest request) {
+    public boolean startRegistration(RegisterRequest request) {
 
         String email = normalizeEmail(request.getEmail());
 
@@ -64,13 +64,13 @@ public class OtpService {
                 )
         );
 
-        emailService.sendOtpEmail(email, otp);
+        return emailService.sendOtpEmail(email, otp);
     }
 
     /**
      * Sends OTP for an already pending registration.
      */
-    public void sendOtp(String email) {
+    public boolean sendOtp(String email) {
 
         email = normalizeEmail(email);
 
@@ -96,7 +96,7 @@ public class OtpService {
                 )
         );
 
-        emailService.sendOtpEmail(email, otp);
+        return emailService.sendOtpEmail(email, otp);
     }
 
     /**
@@ -104,7 +104,16 @@ public class OtpService {
      */
     public PendingRegistration verifyOtp(String email, String otp) {
 
+        if (email == null || email.isBlank()) {
+            throw new RuntimeException("Email is required.");
+        }
+
+        if (otp == null || otp.isBlank()) {
+            throw new RuntimeException("OTP is required.");
+        }
+
         email = normalizeEmail(email);
+        String cleanOtp = otp.trim();
 
         OtpData otpData = otpStore.get(email);
 
@@ -123,7 +132,7 @@ public class OtpService {
             );
         }
 
-        if (!otpData.otp().equals(otp)) {
+        if (!otpData.otp().equals(cleanOtp)) {
             throw new RuntimeException(
                     "Invalid OTP. Please check the code and try again."
             );

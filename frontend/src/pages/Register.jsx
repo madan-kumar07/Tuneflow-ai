@@ -57,16 +57,11 @@ const Register = () => {
 
       const message =
         err.response?.data?.message ||
-        err.response?.data ||
+        (typeof err.response?.data === "string" ? err.response.data : null) ||
         "Unable to send OTP. Please try again.";
 
-      setError(
-        typeof message === "string"
-          ? message
-          : "Unable to send OTP. Please try again."
-      );
-
-      toast.error("OTP could not be sent");
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }

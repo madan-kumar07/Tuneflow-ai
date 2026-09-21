@@ -53,7 +53,7 @@ public class AuthService {
      * User is NOT saved to database yet.
      * OTP is generated and sent to the user's email.
      */
-    public void register(RegisterRequest request) {
+    public boolean register(RegisterRequest request) {
 
         String email = request.getEmail()
                 .trim()
@@ -70,7 +70,7 @@ public class AuthService {
                         request.getPassword()
                 );
 
-        otpService.startRegistration(normalizedRequest);
+        return otpService.startRegistration(normalizedRequest);
     }
 
     /**

@@ -46,11 +46,11 @@ const Login = () => {
 
       const message =
         err.response?.data?.message ||
+        (typeof err.response?.data === "string" ? err.response.data : null) ||
         "Invalid email or password";
 
       setError(message);
-
-      toast.error("Login failed");
+      toast.error(message);
     } finally {
       setLoading(false);
     }
